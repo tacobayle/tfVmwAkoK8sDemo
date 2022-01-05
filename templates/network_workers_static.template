@@ -1,0 +1,14 @@
+network:
+  version: 2
+  ethernets:
+    ${if_name_main}:
+      dhcp4: false
+      addresses:
+        - ${ip4_main}
+      gateway4: ${gw4}
+      nameservers:
+        addresses: [${dns}]
+    ${if_name_second}:
+      dhcp4: false
+      addresses:
+        - ${ip4_second}

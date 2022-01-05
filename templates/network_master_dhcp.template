@@ -1,0 +1,5 @@
+network:
+  version: 2
+  ethernets:
+    ${if_name_main}:
+      dhcp4: true
