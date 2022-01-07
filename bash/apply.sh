@@ -6,4 +6,4 @@ read -r vsphere_server
 echo -n "vsphere username: "
 read -r vsphere_username
 echo -n "vsphere password: "
-read -r vsphere_password
+read -s vsphere_password
