@@ -45,7 +45,7 @@
             tenant_vrf: "{{ controller.tenant_vrf | default('false') }}"
           welcome_workflow_complete: true
           ntp_configuration:
-            ntp_servers: "{{ ntp_servers }}"
+            ntp_servers: "{{ ntp_servers | default(omit) }}"
           dns_configuration:
             search_domain: ''
             server_list: "{{ server_list }}"

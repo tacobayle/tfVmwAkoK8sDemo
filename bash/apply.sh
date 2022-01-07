@@ -327,7 +327,8 @@ if [[ $dhcp == "y" ]] ; then
                   .ako_version = "'$ako_version'" |
                   .avi_version = "'$avi_version'" |
                   .avi_controller_url = "'$avi_controller_url'"' required_vars.json)"
-  echo "${contents}" | tee ../required_vars.json
+  echo "${contents}" | tee ../vars.json
+  echo "{}" | tee ../vars_static.json >/dev/null
 fi
 if [[ $dhcp == "n" ]] ; then
   contents="$(jq '.vcenter_dc = "'$vcenter_dc'" |
@@ -343,32 +344,37 @@ if [[ $dhcp == "n" ]] ; then
                   .vcenter_network_k8s_cidr = "'$vcenter_network_k8s_cidr'" |
                   .vcenter_network_k8s_ip4_addresses = "'$vcenter_network_k8s_ip4_addresses'" |
                   .vcenter_network_k8s_ipam_pool = "'$vcenter_network_k8s_cidr'" |
+                  .avi_domain = "'$avi_domain'" |
                   .K8s_cni_name = "'$K8s_cni_name'" |
                   .ako_service_type = "'$ako_service_type'" |
                   .ako_version = "'$ako_version'" |
                   .avi_version = "'$avi_version'" |
-                  .avi_controller_url = "'$avi_controller_url'" |
-                  .ako_version = "'$ako_version'" |
-                  .ako_version = "'$ako_version'" |
-                  .ako_version = "'$ako_version'" |
-                  .ako_version = "'$ako_version'"' required_vars.json)"
-  echo "${contents}" | tee ../required_vars.json
+                  .avi_controller_url = "'$avi_controller_url'"' required_vars.json)"
+  echo "${contents}" | tee ../vars.json >/dev/null
   contents="$(jq '.vcenter_network_mgmt_network_cidr = "'$vcenter_network_mgmt_network_cidr'" |
                   .vcenter_network_mgmt_ip4_addresses = "'$vcenter_network_mgmt_ip4_addresses'" |
                   .vcenter_network_mgmt_gateway4 = "'$vcenter_network_mgmt_gateway4'" |
                   .vcenter_network_mgmt_network_dns = "'$vcenter_network_mgmt_network_dns'" |
                   .vcenter_network_mgmt_ipam_pool = "'$vcenter_network_mgmt_ipam_pool'"' static_vars.json)"
-  echo "${contents}" | tee ../static_vars.json
+  echo "${contents}" | tee ../vars_static.json >/dev/null
 fi
 
 if [ ! -z "$docker_registry_username" ] && [ ! -z "$docker_registry_password" ] && [ ! -z "$docker_registry_email" ] ; then
   contents="$(jq '.docker_registry_username = "'$docker_registry_username'" |
                   .docker_registry_password = "'$docker_registry_password'" |
                   .docker_registry_email = "'$docker_registry_email'"' docker_vars.json)"
-  echo "${contents}" | tee ../docker_vars.json
+  echo "${contents}" | tee ../vars_docker.json >/dev/null
+else
+  echo "{}" | tee ../vars_docker.json >/dev/null
 fi
 
 if [ ! -z "$ntp_servers_ips" ] ; then
   contents="$(jq '.ntp_servers_ips = "'$ntp_servers_ips'"' ntp_vars.json)"
-  echo "${contents}" | tee ../ntp_vars.json
+  echo "${contents}" | tee ../vars_ntp.json >/dev/null
+else
+  echo "{}" | tee ../vars_ntp.json >/dev/null
 fi
+cd ..
+terraform init
+terraform apply -auto-approve -var-file=vars.json -var-file=vars_static.json -var-file=vars_docker.json -var-file=vars_ntp.json
+
