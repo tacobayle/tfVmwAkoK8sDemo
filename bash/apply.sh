@@ -26,6 +26,7 @@ until [ ! -z "$vsphere_password" ] ; do echo -n "vsphere password: " ; read -s v
 #echo
 run_cmd 'curl https://raw.githubusercontent.com/tacobayle/bash/master/vcenter/get_vcenter.sh -o get_vcenter.sh --silent ; test $(ls -l get_vcenter.sh | awk '"'"'{print $5}'"'"') -gt 0'
 /bin/bash get_vcenter.sh $vsphere_server $vsphere_username $vsphere_password
+clear
 # dc
 echo
 echo "select vCenter dc..."
