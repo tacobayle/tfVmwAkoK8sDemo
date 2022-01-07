@@ -5,10 +5,8 @@ run_cmd() {
   retry=10
   pause=20
   attempt=0
-  echo "############################################################################################"
   while [ $attempt -ne $retry ]; do
     if eval "$@"; then
-      echo "$1 PASSED"
       break
     else
       echo "$1 FAILED"
@@ -22,12 +20,13 @@ run_cmd() {
     done
 }
 echo -n "vsphere server FQDN: "
-read -r vsphere_server
+until [ ! -z "$vsphere_server" ] ; do read -r vsphere_server ; done
 echo -n "vsphere username: "
-read -r vsphere_username
+until [ ! -z "$vsphere_username" ] ; do read -r vsphere_username ; done
 echo -n "vsphere password: "
-read -s vsphere_password
-echo
+until [ ! -z "$vsphere_password" ] ; do read -s vsphere_password ; echo ; done
+#read -s vsphere_password
+#echo
 run_cmd 'curl https://raw.githubusercontent.com/tacobayle/bash/master/vcenter/get_vcenter.sh -o get_vcenter.sh --silent ; test $(ls -l get_vcenter.sh | awk '"'"'{print $5}'"'"') -gt 0'
 /bin/bash get_vcenter.sh $vsphere_server $vsphere_username $vsphere_password
 
