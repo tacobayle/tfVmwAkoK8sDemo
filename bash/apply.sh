@@ -297,4 +297,4 @@ echo $K8s_cni_name
 echo $ako_service_type
 echo $ako_version
 echo $avi_version
-echo $$avi_controller_url
+echo $avi_controller_url
