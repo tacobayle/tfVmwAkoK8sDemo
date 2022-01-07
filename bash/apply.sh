@@ -19,12 +19,9 @@ run_cmd() {
     fi
     done
 }
-echo -n "vsphere server FQDN: "
-until [ ! -z "$vsphere_server" ] ; do read -r vsphere_server ; done
-echo -n "vsphere username: "
-until [ ! -z "$vsphere_username" ] ; do read -r vsphere_username ; done
-echo -n "vsphere password: "
-until [ ! -z "$vsphere_password" ] ; do read -s vsphere_password ; echo ; done
+until [ ! -z "$vsphere_server" ] ; do echo -n "vsphere server FQDN: " ; read -r vsphere_server ; done
+until [ ! -z "$vsphere_username" ] ; do echo -n "vsphere username: " ; read -r vsphere_username ; done
+until [ ! -z "$vsphere_password" ] ; do echo -n "vsphere password: " ; read -s vsphere_password ; echo ; done
 #read -s vsphere_password
 #echo
 run_cmd 'curl https://raw.githubusercontent.com/tacobayle/bash/master/vcenter/get_vcenter.sh -o get_vcenter.sh --silent ; test $(ls -l get_vcenter.sh | awk '"'"'{print $5}'"'"') -gt 0'
