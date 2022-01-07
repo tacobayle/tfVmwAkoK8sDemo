@@ -114,10 +114,9 @@ clear
 # management network dhcp
 until [[ $dhcp == "y" ]] || [[ $dhcp == "n" ]] ; do echo -n "dhcp for management network y/n: " ; read -r dhcp ; done
 if [[ $dhcp == "y" ]] ; then
-  dhcp="true"
+  dhcp="y"
 fi
 if [[ $dhcp == "n" ]] ; then
-  dhcp="false"
   until [ ! -z "$vcenter_network_mgmt_network_cidr" ] ; do echo -n "enter management network address cidr (like: 10.206.112.0/22): " ; read -r vcenter_network_mgmt_network_cidr ; done
   until [ ! -z "$vcenter_network_mgmt_ip4_addresses" ] ; do echo -n "enter 6 free IPs separated by commas to use in the management network (like: 10.206.112.70, 10.206.112.71, 10.206.112.72, 10.206.112.73, 10.206.112.74, 10.206.112.75): " ; read -r vcenter_network_mgmt_ip4_addresses ; done
   until [ ! -z "$vcenter_network_mgmt_gateway4" ] ; do echo -n "enter IP of the default gateway (like: 10.206.112.1): " ; read -r vcenter_network_mgmt_gateway4 ; done
@@ -307,3 +306,71 @@ echo $avi_controller_url
 if [ ! -z "$docker_registry_username" ] ; then echo $docker_registry_username; fi
 if [ ! -z "$docker_registry_password" ] ; then echo $docker_registry_password; fi
 if [ ! -z "$docker_registry_email" ] ; then echo $docker_registry_email; fi
+if [[ $dhcp == "y" ]] ; then
+  contents="$(jq '.vcenter_dc = "'$vcenter_dc'" |
+                  .vcenter_cluster = "'$vcenter_cluster'" |
+                  .vcenter_datastore = "'$vcenter_datastore'" |
+                  .vcenter_network_mgmt_name = "'$vcenter_network_mgmt_name'" |
+                  .dhcp = true |
+                  .vcenter_network_vip_name = "'$vcenter_network_vip_name'" |
+                  .vcenter_network_vip_cidr = "'$vcenter_network_vip_cidr'" |
+                  .vcenter_network_vip_ip4_addresses = "'$vcenter_network_vip_ip4_addresses'" |
+                  .vcenter_network_vip_ipam_pool = "'$vcenter_network_vip_ipam_pool'" |
+                  .vcenter_network_k8s_name = "'$vcenter_network_k8s_name'" |
+                  .vcenter_network_k8s_cidr = "'$vcenter_network_k8s_cidr'" |
+                  .vcenter_network_k8s_ip4_addresses = "'$vcenter_network_k8s_ip4_addresses'" |
+                  .vcenter_network_k8s_ipam_pool = "'$vcenter_network_k8s_cidr'" |
+                  .K8s_cni_name = "'$K8s_cni_name'" |
+                  .ako_service_type = "'$ako_service_type'" |
+                  .ako_version = "'$ako_version'" |
+                  .avi_version = "'$avi_version'" |
+                  .avi_controller_url = "'$avi_controller_url'" |
+                  .ako_version = "'$ako_version'" |
+                  .ako_version = "'$ako_version'" |
+                  .ako_version = "'$ako_version'" |
+                  .ako_version = "'$ako_version'"' bash/required_vars.json)"
+  echo "${contents}" | tee ../required_vars.json
+fi
+if [[ $dhcp == "n" ]] ; then
+  contents="$(jq '.vcenter_dc = "'$vcenter_dc'" |
+                  .vcenter_cluster = "'$vcenter_cluster'" |
+                  .vcenter_datastore = "'$vcenter_datastore'" |
+                  .vcenter_network_mgmt_name = "'$vcenter_network_mgmt_name'" |
+                  .dhcp = false |
+                  .vcenter_network_vip_name = "'$vcenter_network_vip_name'" |
+                  .vcenter_network_vip_cidr = "'$vcenter_network_vip_cidr'" |
+                  .vcenter_network_vip_ip4_addresses = "'$vcenter_network_vip_ip4_addresses'" |
+                  .vcenter_network_vip_ipam_pool = "'$vcenter_network_vip_ipam_pool'" |
+                  .vcenter_network_k8s_name = "'$vcenter_network_k8s_name'" |
+                  .vcenter_network_k8s_cidr = "'$vcenter_network_k8s_cidr'" |
+                  .vcenter_network_k8s_ip4_addresses = "'$vcenter_network_k8s_ip4_addresses'" |
+                  .vcenter_network_k8s_ipam_pool = "'$vcenter_network_k8s_cidr'" |
+                  .K8s_cni_name = "'$K8s_cni_name'" |
+                  .ako_service_type = "'$ako_service_type'" |
+                  .ako_version = "'$ako_version'" |
+                  .avi_version = "'$avi_version'" |
+                  .avi_controller_url = "'$avi_controller_url'" |
+                  .ako_version = "'$ako_version'" |
+                  .ako_version = "'$ako_version'" |
+                  .ako_version = "'$ako_version'" |
+                  .ako_version = "'$ako_version'"' bash/required_vars.json)"
+  echo "${contents}" | tee ../required_vars.json
+  contents="$(jq '.vcenter_network_mgmt_network_cidr = "'$vcenter_network_mgmt_network_cidr'" |
+                  .vcenter_network_mgmt_ip4_addresses = "'$vcenter_network_mgmt_ip4_addresses'" |
+                  .vcenter_network_mgmt_gateway4 = "'$vcenter_network_mgmt_gateway4'" |
+                  .vcenter_network_mgmt_network_dns = "'$vcenter_network_mgmt_network_dns'" |
+                  .vcenter_network_mgmt_ipam_pool = "'$vcenter_network_mgmt_ipam_pool'"' bash/static_vars.json)"
+  echo "${contents}" | tee ../static_vars.json
+fi
+
+if [ ! -z "$docker_registry_username" ] && [ ! -z "$docker_registry_password" ] && [ ! -z "$docker_registry_email" ] ; then
+  contents="$(jq '.docker_registry_username = "'$docker_registry_username'" |
+                  .docker_registry_password = "'$docker_registry_password'" |
+                  .docker_registry_email = "'$docker_registry_email'"' | bash/docker_vars.json)"
+  echo "${contents}" | tee ../docker_vars.json
+fi
+
+if [ ! -z "$ntp_servers_ips" ] ; then
+  contents="$(jq '.ntp_servers_ips = "'$ntp_servers_ips'"' | bash/ntp_vars.json)"
+  echo "${contents}" | tee ../ntp_vars.json
+fi
