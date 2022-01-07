@@ -75,6 +75,7 @@ if [[ $(jq length networks.json) -eq 1 ]] ; then
   echo "defaulting to $(jq -r -c .[0] networks.json)"
 else
   count=1
+  IFS=$'\n'
   for item in $(jq -c -r .[] networks.json)
   do
     echo "$count: $item"
