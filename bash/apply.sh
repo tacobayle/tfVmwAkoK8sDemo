@@ -65,3 +65,16 @@ else
   done
   until [ ! -z "$vcenter_datastore" ] ; do echo -n "vcenter_datastore number: " ; read -r vcenter_datastore ; done
 fi
+# management network
+echo
+echo "select vCenter management network"
+if [[ $(jq length networks.json) -eq 1 ]] ; then
+  echo "defaulting to $(jq -r -c .[0] networks.json)"
+else
+  count=1
+  for item in $(jq -c -r .[])
+  do
+    echo "$count: $item"
+  done
+  until [ ! -z "$vcenter_network_mgmt_name" ] ; do echo -n "network number: " ; read -r vcenter_network_mgmt_name ; done
+fi
