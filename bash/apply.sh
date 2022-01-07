@@ -41,7 +41,7 @@ else
     echo "$count: $item"
     count=$((count+1))
   done
-  re='^[0-9]+$'
+  re='^[0-9]+$' ; yournumber=""
   until [ ! -z "$vcenter_dc" ] ; do echo -n "vcenter_dc number: " ; read -r vcenter_dc ; done
   yournumber=$((yournumber-1))
   vcenter_dc=$(jq -r -c .[$yournumber] datacenters.json)
@@ -62,7 +62,7 @@ else
     echo "$count: $item"
     count=$((count+1))
   done
-  re='^[0-9]+$'
+  re='^[0-9]+$' ; yournumber=""
   until [[ $yournumber =~ $re ]] ; do echo -n "cluster number: " ; read -r yournumber ; done
   yournumber=$((yournumber-1))
   vcenter_cluster=$(jq -r -c .[$yournumber] clusters.json)
@@ -83,7 +83,7 @@ else
     echo "$count: $item"
     count=$((count+1))
   done
-  re='^[0-9]+$'
+  re='^[0-9]+$' ; yournumber=""
   until [[ $yournumber =~ $re ]] ; do echo -n "datastore number: " ; read -r yournumber ; done
   yournumber=$((yournumber-1))
   vcenter_datastore=$(jq -r -c .[$yournumber] datastores.json)
@@ -104,7 +104,7 @@ else
     echo "$count: $item"
     count=$((count+1))
   done
-  re='^[0-9]+$'
+  re='^[0-9]+$' ; yournumber=""
   until [[ $yournumber =~ $re ]] ; do echo -n "network number: " ; read -r yournumber ; done
   yournumber=$((yournumber-1))
   vcenter_network_mgmt_name=$(jq -r -c .[$yournumber] networks.json)
@@ -140,7 +140,7 @@ else
     echo "$count: $item"
     count=$((count+1))
   done
-  re='^[0-9]+$'
+  re='^[0-9]+$' ; yournumber=""
   until [[ $yournumber =~ $re ]] ; do echo -n "network number: " ; read -r yournumber ; done
   yournumber=$((yournumber-1))
   vcenter_network_vip_name=$(jq -r -c .[$yournumber] networks.json)
@@ -166,7 +166,7 @@ else
     echo "$count: $item"
     count=$((count+1))
   done
-  re='^[0-9]+$'
+  re='^[0-9]+$' ; yournumber=""
   until [[ $yournumber =~ $re ]] ; do echo -n "network number: " ; read -r yournumber ; done
   yournumber=$((yournumber-1))
   vcenter_network_k8s_name=$(jq -r -c .[$yournumber] networks.json)
@@ -192,7 +192,7 @@ else
     echo "$count: $item"
     count=$((count+1))
   done
-  re='^[0-9]+$'
+  re='^[0-9]+$' ; yournumber=""
   until [[ $yournumber =~ $re ]] ; do echo -n "Avi version number: " ; read -r yournumber ; done
   yournumber=$((yournumber-1))
   avi_version=$(jq -r -c .[$yournumber] avi_versions.json)
@@ -215,7 +215,7 @@ else
     echo "$count: $item"
     count=$((count+1))
   done
-  re='^[0-9]+$'
+  re='^[0-9]+$' ; yournumber=""
   until [[ $yournumber =~ $re ]] ; do echo -n "CNI number: " ; read -r yournumber ; done
   yournumber=$((yournumber-1))
   K8s_cni_name=$(jq -r -c .[$yournumber] cnis.json)
@@ -237,7 +237,7 @@ else
       echo "$count: $item"
       count=$((count+1))
     done
-    re='^[0-9]+$'
+    re='^[0-9]+$' ; yournumber=""
     until [[ $yournumber =~ $re ]] ; do echo -n "svc type: " ; read -r yournumber ; done
     yournumber=$((yournumber-1))
     ako_service_type=$(jq -r -c .[$yournumber] svc_types.json)
@@ -262,7 +262,7 @@ else
     echo "$count: $item"
     count=$((count+1))
   done
-  re='^[0-9]+$'
+  re='^[0-9]+$' ; yournumber=""
   until [[ $yournumber =~ $re ]] ; do echo -n "CNI number: " ; read -r yournumber ; done
   yournumber=$((yournumber-1))
   ako_version=$(jq -r -c .[$yournumber] ako_versions.json)
