@@ -27,6 +27,7 @@ until [ ! -z "$vsphere_password" ] ; do echo -n "vsphere password: " ; read -s v
 run_cmd 'curl https://raw.githubusercontent.com/tacobayle/bash/master/vcenter/get_vcenter.sh -o get_vcenter.sh --silent ; test $(ls -l get_vcenter.sh | awk '"'"'{print $5}'"'"') -gt 0'
 /bin/bash get_vcenter.sh $vsphere_server $vsphere_username $vsphere_password
 # dc
+echo "select vCenter dc"
 if [[ $(jq length datacenters.json) -eq 1 ]] ; then
   echo "defaulting to $(jq -r -c .[0] datacenters.json)"
 else
@@ -36,4 +37,16 @@ else
     echo "$count: $item"
   done
   until [ ! -z "$vcenter_dc" ] ; do echo -n "vcenter_dc number: " ; read -r vcenter_dc ; done
+fi
+# dc
+echo "select vCenter cluster"
+if [[ $(jq length clusters.json) -eq 1 ]] ; then
+  echo "defaulting to $(jq -r -c .[0] clusters.json)"
+else
+  count=1
+  for item in $(jq -c -r .[])
+  do
+    echo "$count: $item"
+  done
+  until [ ! -z "$vcenter_cluster" ] ; do echo -n "vcenter_cluster number: " ; read -r vcenter_cluster ; done
 fi
