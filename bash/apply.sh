@@ -106,7 +106,12 @@ else
   vcenter_network_mgmt_name=$(jq -r -c .[$yournumber] networks.json)
 fi
 clear
+# management network dhcp
+until [[ $dhcp == "y" ]] || [[ $dhcp == "n" ]] ; do echo -n "dhcp for management network y/n: " ; read -r dhcp ; done
+if [[ $dhcp == "y" ]] ; then dhcp="true" ; fi
+if [[ $dhcp == "n" ]] ; then dhcp="false" ; fi
 echo $vcenter_dc
 echo $vcenter_cluster
 echo $vcenter_datastore
 echo $vcenter_network_mgmt_name
+echo $dhcp
