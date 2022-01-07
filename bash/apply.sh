@@ -45,6 +45,7 @@ else
   yournumber=$((yournumber-1))
   vcenter_dc=$(jq -r -c .[$yournumber] datacenters.json)
 fi
+clear
 # cluster
 echo
 echo "select vCenter cluster..."
@@ -64,6 +65,7 @@ else
   yournumber=$((yournumber-1))
   vcenter_cluster=$(jq -r -c .[$yournumber] clusters.json)
 fi
+clear
 # datastore
 echo
 echo "select vCenter datastore..."
@@ -83,6 +85,7 @@ else
   yournumber=$((yournumber-1))
   vcenter_datastore=$(jq -r -c .[$yournumber] datastores.json)
 fi
+clear
 # management network
 echo
 echo "select vCenter management network..."
@@ -102,6 +105,7 @@ else
   yournumber=$((yournumber-1))
   vcenter_network_mgmt_name=$(jq -r -c .[$yournumber] networks.json)
 fi
+clear
 echo $vcenter_dc
 echo $vcenter_cluster
 echo $vcenter_datastore
