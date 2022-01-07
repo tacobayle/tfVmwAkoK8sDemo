@@ -274,6 +274,12 @@ until [[ $ako_deploy == "y" ]] || [[ $ako_deploy == "n" ]] ; do echo -n "deploy 
 clear
 # avi url
 until [ ! -z "$avi_controller_url" ] ; do echo -n "Avi download URL: " ; read -r avi_controller_url ; done
+# docker account
+echo -n "enter docker username - type enter to ignore: " ; read -r docker_registry_username
+echo -n "enter docker password - type enter to ignore: " ; read -s docker_registry_password
+echo
+echo -n "enter docker email - type enter to ignore: " ; read -r docker_registry_email
+#
 echo $vcenter_dc
 echo $vcenter_cluster
 echo $vcenter_datastore
@@ -284,7 +290,7 @@ if [ ! -z "$vcenter_network_mgmt_ip4_addresses" ] ; then echo $vcenter_network_m
 if [ ! -z "$vcenter_network_mgmt_gateway4" ] ; then echo $vcenter_network_mgmt_gateway4; fi
 if [ ! -z "$vcenter_network_mgmt_network_dns" ] ; then echo $vcenter_network_mgmt_network_dns; fi
 if [ ! -z "$vcenter_network_mgmt_ipam_pool" ] ; then echo $vcenter_network_mgmt_ipam_pool; fi
-echo $ntp_servers_ips
+if [ ! -z "$ntp_servers_ips" ] ; then echo $ntp_servers_ips; fi
 echo $vcenter_network_vip_name
 echo $vcenter_network_vip_cidr
 echo $vcenter_network_vip_ip4_addresses
@@ -298,3 +304,6 @@ echo $ako_service_type
 echo $ako_version
 echo $avi_version
 echo $avi_controller_url
+if [ ! -z "$docker_registry_username" ] ; then echo $docker_registry_username; fi
+if [ ! -z "$docker_registry_password" ] ; then echo $docker_registry_password; fi
+if [ ! -z "$docker_registry_email" ] ; then echo $docker_registry_email; fi
