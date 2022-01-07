@@ -198,7 +198,7 @@ else
   avi_version=$(jq -r -c .[$yournumber] avi_versions.json)
 fi
 clear
-#
+# domain
 until [ ! -z "$avi_domain" ] ; do echo -n "enter a domain name (like: avi.com): " ; read -r avi_domain ; done
 # CNI
 echo
@@ -298,6 +298,7 @@ echo $vcenter_network_k8s_name
 echo $vcenter_network_k8s_cidr
 echo $vcenter_network_k8s_ip4_addresses
 echo $vcenter_network_k8s_ipam_pool
+echo $avi_domain
 echo $K8s_cni_name
 echo $ako_service_type
 echo $ako_version
@@ -320,15 +321,12 @@ if [[ $dhcp == "y" ]] ; then
                   .vcenter_network_k8s_cidr = "'$vcenter_network_k8s_cidr'" |
                   .vcenter_network_k8s_ip4_addresses = "'$vcenter_network_k8s_ip4_addresses'" |
                   .vcenter_network_k8s_ipam_pool = "'$vcenter_network_k8s_cidr'" |
+                  .avi_domain = "'$avi_domain'" |
                   .K8s_cni_name = "'$K8s_cni_name'" |
                   .ako_service_type = "'$ako_service_type'" |
                   .ako_version = "'$ako_version'" |
                   .avi_version = "'$avi_version'" |
-                  .avi_controller_url = "'$avi_controller_url'" |
-                  .ako_version = "'$ako_version'" |
-                  .ako_version = "'$ako_version'" |
-                  .ako_version = "'$ako_version'" |
-                  .ako_version = "'$ako_version'"' bash/required_vars.json)"
+                  .avi_controller_url = "'$avi_controller_url'"' required_vars.json)"
   echo "${contents}" | tee ../required_vars.json
 fi
 if [[ $dhcp == "n" ]] ; then
@@ -353,24 +351,24 @@ if [[ $dhcp == "n" ]] ; then
                   .ako_version = "'$ako_version'" |
                   .ako_version = "'$ako_version'" |
                   .ako_version = "'$ako_version'" |
-                  .ako_version = "'$ako_version'"' bash/required_vars.json)"
+                  .ako_version = "'$ako_version'"' required_vars.json)"
   echo "${contents}" | tee ../required_vars.json
   contents="$(jq '.vcenter_network_mgmt_network_cidr = "'$vcenter_network_mgmt_network_cidr'" |
                   .vcenter_network_mgmt_ip4_addresses = "'$vcenter_network_mgmt_ip4_addresses'" |
                   .vcenter_network_mgmt_gateway4 = "'$vcenter_network_mgmt_gateway4'" |
                   .vcenter_network_mgmt_network_dns = "'$vcenter_network_mgmt_network_dns'" |
-                  .vcenter_network_mgmt_ipam_pool = "'$vcenter_network_mgmt_ipam_pool'"' bash/static_vars.json)"
+                  .vcenter_network_mgmt_ipam_pool = "'$vcenter_network_mgmt_ipam_pool'"' static_vars.json)"
   echo "${contents}" | tee ../static_vars.json
 fi
 
 if [ ! -z "$docker_registry_username" ] && [ ! -z "$docker_registry_password" ] && [ ! -z "$docker_registry_email" ] ; then
   contents="$(jq '.docker_registry_username = "'$docker_registry_username'" |
                   .docker_registry_password = "'$docker_registry_password'" |
-                  .docker_registry_email = "'$docker_registry_email'"' | bash/docker_vars.json)"
+                  .docker_registry_email = "'$docker_registry_email'"' docker_vars.json)"
   echo "${contents}" | tee ../docker_vars.json
 fi
 
 if [ ! -z "$ntp_servers_ips" ] ; then
-  contents="$(jq '.ntp_servers_ips = "'$ntp_servers_ips'"' | bash/ntp_vars.json)"
+  contents="$(jq '.ntp_servers_ips = "'$ntp_servers_ips'"' ntp_vars.json)"
   echo "${contents}" | tee ../ntp_vars.json
 fi
