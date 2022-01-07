@@ -36,6 +36,7 @@ else
   for item in $(jq -c -r .[] networks.json)
   do
     echo "$count: $item"
+    count=$((count+1))
   done
   until [ ! -z "$vcenter_dc" ] ; do echo -n "vcenter_dc number: " ; read -r vcenter_dc ; done
 fi
@@ -49,6 +50,7 @@ else
   for item in $(jq -c -r .[] networks.json)
   do
     echo "$count: $item"
+    count=$((count+1))
   done
   until [ ! -z "$vcenter_cluster" ] ; do echo -n "vcenter_cluster number: " ; read -r vcenter_cluster ; done
 fi
@@ -62,6 +64,7 @@ else
   for item in $(jq -c -r .[] networks.json)
   do
     echo "$count: $item"
+    count=$((count+1))
   done
   until [ ! -z "$vcenter_datastore" ] ; do echo -n "vcenter_datastore number: " ; read -r vcenter_datastore ; done
 fi
@@ -75,6 +78,7 @@ else
   for item in $(jq -c -r .[] networks.json)
   do
     echo "$count: $item"
+    count=$((count+1))
   done
   until [ ! -z "$vcenter_network_mgmt_name" ] ; do echo -n "network number: " ; read -r vcenter_network_mgmt_name ; done
 fi
