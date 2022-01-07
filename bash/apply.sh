@@ -117,8 +117,8 @@ if [[ $dhcp == "y" ]] ; then
 fi
 if [[ $dhcp == "n" ]] ; then
   dhcp="false"
-  until [ ! -z "$vcenter_network_mgmt_ip4_addresses" ] ; do echo -n "enter 6 free IPs separated by commas to use in the management network (like: 10.206.112.70, 10.206.112.71, 10.206.112.72, 10.206.112.73, 10.206.112.74, 10.206.112.75): " ; read -r vcenter_network_mgmt_ip4_addresses ; done
   until [ ! -z "$vcenter_network_mgmt_network_cidr" ] ; do echo -n "enter management network address cidr (like: 10.206.112.0/22): " ; read -r vcenter_network_mgmt_network_cidr ; done
+  until [ ! -z "$vcenter_network_mgmt_ip4_addresses" ] ; do echo -n "enter 6 free IPs separated by commas to use in the management network (like: 10.206.112.70, 10.206.112.71, 10.206.112.72, 10.206.112.73, 10.206.112.74, 10.206.112.75): " ; read -r vcenter_network_mgmt_ip4_addresses ; done
   until [ ! -z "$vcenter_network_mgmt_network_dns" ] ; do echo -n "enter DNS IPs separated by commas (like: 10.206.8.130, 10.206.8.131): " ; read -r vcenter_network_mgmt_network_dns ; done
   until [ ! -z "$vcenter_network_mgmt_gateway4" ] ; do echo -n "enter IP of the default gateway (like: 10.206.112.1): " ; read -r vcenter_network_mgmt_gateway4 ; done
   until [ ! -z "$vcenter_network_mgmt_ipam_pool" ] ; do echo -n "enter a range of at least two IPs for management network separated by hyphen (like: 10.206.112.55 - 10.206.112.57): " ; read -r vcenter_network_mgmt_ipam_pool ; done
