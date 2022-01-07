@@ -81,7 +81,7 @@ else
     count=$((count+1))
   done
   re='^[0-9]+$'
-  until [[ ! $yournumber =~ $re ]] ; do echo -n "network number: " ; read -r yournumber ; done
+  until [[ $yournumber =~ $re ]] ; do echo -n "network number: " ; read -r yournumber ; done
   yournumber=$((yournumber-1))
   echo $yournumber
   vcenter_network_mgmt_name=$(jq -r -c .[$yournumber] networks.json)
