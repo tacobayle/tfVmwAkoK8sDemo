@@ -31,48 +31,64 @@ echo
 echo "select vCenter dc..."
 if [[ $(jq length datacenters.json) -eq 1 ]] ; then
   echo "defaulting to $(jq -r -c .[0] datacenters.json)"
+  vcenter_dc=$(jq -r -c .[0] datacenters.json)
 else
   count=1
+  IFS=$'\n'
   for item in $(jq -c -r .[] networks.json)
   do
     echo "$count: $item"
     count=$((count+1))
   done
+  re='^[0-9]+$'
   until [ ! -z "$vcenter_dc" ] ; do echo -n "vcenter_dc number: " ; read -r vcenter_dc ; done
+  yournumber=$((yournumber-1))
+  vcenter_dc=$(jq -r -c .[$yournumber] datacenters.json)
 fi
 # cluster
 echo
 echo "select vCenter cluster..."
 if [[ $(jq length clusters.json) -eq 1 ]] ; then
   echo "defaulting to $(jq -r -c .[0] clusters.json)"
+  vcenter_cluster=$(jq -r -c .[0] clusters.json)
 else
   count=1
-  for item in $(jq -c -r .[] networks.json)
+  IFS=$'\n'
+  for item in $(jq -c -r .[] clusters.json)
   do
     echo "$count: $item"
     count=$((count+1))
   done
-  until [ ! -z "$vcenter_cluster" ] ; do echo -n "vcenter_cluster number: " ; read -r vcenter_cluster ; done
+  re='^[0-9]+$'
+  until [[ $yournumber =~ $re ]] ; do echo -n "cluster number: " ; read -r yournumber ; done
+  yournumber=$((yournumber-1))
+  vcenter_cluster=$(jq -r -c .[$yournumber] clusters.json)
 fi
 # datastore
 echo
 echo "select vCenter datastore..."
 if [[ $(jq length datastores.json) -eq 1 ]] ; then
   echo "defaulting to $(jq -r -c .[0] datastores.json)"
+  vcenter_datastore=$(jq -r -c .[0] datastores.json)
 else
   count=1
-  for item in $(jq -c -r .[] networks.json)
+  IFS=$'\n'
+  for item in $(jq -c -r .[] datastores.json)
   do
     echo "$count: $item"
     count=$((count+1))
   done
-  until [ ! -z "$vcenter_datastore" ] ; do echo -n "vcenter_datastore number: " ; read -r vcenter_datastore ; done
+  re='^[0-9]+$'
+  until [[ $yournumber =~ $re ]] ; do echo -n "datastore number: " ; read -r yournumber ; done
+  yournumber=$((yournumber-1))
+  vcenter_datastore=$(jq -r -c .[$yournumber] datastores.json)
 fi
 # management network
 echo
 echo "select vCenter management network..."
 if [[ $(jq length networks.json) -eq 1 ]] ; then
   echo "defaulting to $(jq -r -c .[0] networks.json)"
+  vcenter_network_mgmt_name=$(jq -r -c .[0] networks.json)
 else
   count=1
   IFS=$'\n'
@@ -84,7 +100,5 @@ else
   re='^[0-9]+$'
   until [[ $yournumber =~ $re ]] ; do echo -n "network number: " ; read -r yournumber ; done
   yournumber=$((yournumber-1))
-  echo $yournumber
   vcenter_network_mgmt_name=$(jq -r -c .[$yournumber] networks.json)
-  echo $vcenter_network_mgmt_name
 fi
