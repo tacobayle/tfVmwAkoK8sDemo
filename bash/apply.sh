@@ -102,3 +102,7 @@ else
   yournumber=$((yournumber-1))
   vcenter_network_mgmt_name=$(jq -r -c .[$yournumber] networks.json)
 fi
+echo $vcenter_dc
+echo $vcenter_cluster
+echo $vcenter_datastore
+echo $vcenter_network_mgmt_name
