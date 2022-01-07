@@ -28,12 +28,12 @@ run_cmd 'curl https://raw.githubusercontent.com/tacobayle/bash/master/vcenter/ge
 /bin/bash get_vcenter.sh $vsphere_server $vsphere_username $vsphere_password
 # dc
 echo
-echo "select vCenter dc"
+echo "select vCenter dc..."
 if [[ $(jq length datacenters.json) -eq 1 ]] ; then
   echo "defaulting to $(jq -r -c .[0] datacenters.json)"
 else
   count=1
-  for item in $(jq -c -r .[])
+  for item in $(jq -c -r .[] networks.json)
   do
     echo "$count: $item"
   done
@@ -41,12 +41,12 @@ else
 fi
 # cluster
 echo
-echo "select vCenter cluster"
+echo "select vCenter cluster..."
 if [[ $(jq length clusters.json) -eq 1 ]] ; then
   echo "defaulting to $(jq -r -c .[0] clusters.json)"
 else
   count=1
-  for item in $(jq -c -r .[])
+  for item in $(jq -c -r .[] networks.json)
   do
     echo "$count: $item"
   done
@@ -54,12 +54,12 @@ else
 fi
 # datastore
 echo
-echo "select vCenter datastore"
+echo "select vCenter datastore..."
 if [[ $(jq length datastores.json) -eq 1 ]] ; then
   echo "defaulting to $(jq -r -c .[0] datastores.json)"
 else
   count=1
-  for item in $(jq -c -r .[])
+  for item in $(jq -c -r .[] networks.json)
   do
     echo "$count: $item"
   done
@@ -67,12 +67,12 @@ else
 fi
 # management network
 echo
-echo "select vCenter management network"
+echo "select vCenter management network..."
 if [[ $(jq length networks.json) -eq 1 ]] ; then
   echo "defaulting to $(jq -r -c .[0] networks.json)"
 else
   count=1
-  for item in $(jq -c -r .[])
+  for item in $(jq -c -r .[] networks.json)
   do
     echo "$count: $item"
   done
