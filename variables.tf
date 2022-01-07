@@ -44,6 +44,10 @@ variable "vcenter_network_mgmt_name" {
   default = "vxw-dvs-34-virtualwire-3-sid-6120002-wdc-06-vc12-avi-mgmt"
 }
 
+variable "ntp_servers_ips" {
+  default = "10.206.8.130, 10.206.8.131"
+}
+
 variable "vcenter_network_mgmt_dhcp" {
   default = true
 }
@@ -100,10 +104,6 @@ variable "vcenter_network_k8s_ipam_pool" {
   default = "100.100.100.100 - 100.100.100.199"
 }
 
-variable "ntp_servers_ips" {
-  default = "10.206.8.130, 10.206.8.131"
-}
-
 variable "avi_version" {
   default = "21.1.2"
 }
@@ -124,9 +124,9 @@ variable "K8s_network_pod" {
   default = "192.168.0.0/16"
 }
 
-variable "K8s_cni_url" {
-  default = "https://github.com/vmware-tanzu/antrea/releases/download/v1.2.3/antrea.yml"
-}
+//variable "K8s_cni_url" {
+//  default = "https://github.com/vmware-tanzu/antrea/releases/download/v1.2.3/antrea.yml"
+//}
 
 variable "Docker_version" {
   default = "5:20.10.7~3-0~ubuntu-focal"

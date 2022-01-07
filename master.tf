@@ -40,7 +40,7 @@ data "template_file" "master_userdata_static" {
     K8s_version = var.K8s_version
     Docker_version = var.Docker_version
     K8s_network_pod = var.K8s_network_pod
-    K8s_cni_url = var.K8s_cni_url
+//    K8s_cni_url = var.K8s_cni_url
     if_name_k8s = var.master.if_name_second
     cni_name = var.K8s_cni_name
     ako_service_type = local.ako_service_type
@@ -60,7 +60,7 @@ data "template_file" "master_userdata_dhcp" {
     K8s_version = var.K8s_version
     Docker_version = var.Docker_version
     K8s_network_pod = var.K8s_network_pod
-    K8s_cni_url = var.K8s_cni_url
+//    K8s_cni_url = var.K8s_cni_url
     network_config_static  = base64encode(data.template_file.network_master_dhcp_static[0].rendered)
     if_name_k8s = var.master.if_name_second
     cni_name = var.K8s_cni_name
