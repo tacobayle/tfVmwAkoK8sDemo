@@ -173,7 +173,7 @@ else
 fi
 clear
 # k8s network details
-until [ ! -z "$vcenter_network_k8s_cidr" ] ; do echo -n "enter vip network address cidr (like: 10.206.112.0/22): " ; read -r vcenter_network_vip_cidr ; done
+until [ ! -z "$vcenter_network_k8s_cidr" ] ; do echo -n "enter K8s network address cidr (like: 10.206.112.0/22): " ; read -r vcenter_network_k8s_cidr ; done
 until [ ! -z "$vcenter_network_k8s_ip4_addresses" ] ; do echo -n "enter 3 free IPs separated by commas to use in the k8s network (like: 100.100.100.200, 100.100.100.201, 100.100.100.202): " ; read -r vcenter_network_k8s_ip4_addresses ; done
 until [ ! -z "$vcenter_network_k8s_ipam_pool" ] ; do echo -n "enter a range of IPs for vip network separated by hyphen (like: 100.100.100.100 - 100.100.100.199): " ; read -r vcenter_network_k8s_ipam_pool ; done
 clear
