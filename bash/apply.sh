@@ -31,6 +31,7 @@ echo
 echo "select vCenter dc..."
 if [[ $(jq length datacenters.json) -eq 1 ]] ; then
   echo "defaulting to $(jq -r -c .[0] datacenters.json)"
+  sleep 2
   vcenter_dc=$(jq -r -c .[0] datacenters.json)
 else
   count=1
@@ -51,6 +52,7 @@ echo
 echo "select vCenter cluster..."
 if [[ $(jq length clusters.json) -eq 1 ]] ; then
   echo "defaulting to $(jq -r -c .[0] clusters.json)"
+  sleep 2
   vcenter_cluster=$(jq -r -c .[0] clusters.json)
 else
   count=1
@@ -71,6 +73,7 @@ echo
 echo "select vCenter datastore..."
 if [[ $(jq length datastores.json) -eq 1 ]] ; then
   echo "defaulting to $(jq -r -c .[0] datastores.json)"
+  sleep 2
   vcenter_datastore=$(jq -r -c .[0] datastores.json)
 else
   count=1
@@ -91,6 +94,7 @@ echo
 echo "select vCenter management network..."
 if [[ $(jq length networks.json) -eq 1 ]] ; then
   echo "defaulting to $(jq -r -c .[0] networks.json)"
+  sleep 2
   vcenter_network_mgmt_name=$(jq -r -c .[0] networks.json)
 else
   count=1
@@ -126,6 +130,7 @@ echo
 echo "select vCenter vip network..."
 if [[ $(jq length networks.json) -eq 1 ]] ; then
   echo "defaulting to $(jq -r -c .[0] networks.json)"
+  sleep 2
   vcenter_network_vip_name=$(jq -r -c .[0] networks.json)
 else
   count=1
@@ -151,6 +156,7 @@ echo
 echo "select vCenter vip network..."
 if [[ $(jq length networks.json) -eq 1 ]] ; then
   echo "defaulting to $(jq -r -c .[0] networks.json)"
+  sleep 2
   vcenter_network_k8s_name=$(jq -r -c .[0] networks.json)
 else
   count=1
@@ -176,6 +182,7 @@ echo
 echo "select Avi version..."
 if [[ $(jq length avi_versions.json) -eq 1 ]] ; then
   echo "defaulting to $(jq -r -c .[0] avi_versions.json)"
+  sleep 2
   avi_version=$(jq -r -c .[0] avi_versions.json)
 else
   count=1
@@ -198,6 +205,7 @@ echo
 echo "select CNI..."
 if [[ $(jq length cnis.json) -eq 1 ]] ; then
   echo "defaulting to $(jq -r -c .[0] cnis.json)"
+  sleep 2
   K8s_cni_name=$(jq -r -c .[0] cnis.json)
 else
   count=1
@@ -218,6 +226,7 @@ echo
 echo "select service type..."
 if [[ $(jq length svc_types.json) -eq 1 ]] ; then
   echo "defaulting to $(jq -r -c .[0] svc_types.json)"
+  sleep 2
   ako_service_type=$(jq -r -c .[0] svc_types.json)
 else
   if [[ $K8s_cni_name == "antrea" ]] ; then
@@ -243,6 +252,7 @@ echo
 echo "select AKO version..."
 if [[ $(jq length ako_versions.json) -eq 1 ]] ; then
   echo "defaulting to $(jq -r -c .[0] ako_versions.json)"
+  sleep 2
   ako_version=$(jq -r -c .[0] ako_versions.json)
 else
   count=1
