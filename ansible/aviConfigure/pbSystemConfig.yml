@@ -28,6 +28,7 @@
       loop: "{{ ntp_servers_ips }}"
       when:
         - ntp_servers_ips is defined
+        - ntp_servers_ips | length > 0
 
     - name: Define dns_servers
       set_fact:
@@ -35,6 +36,7 @@
       loop: "{{ dns_servers_ips }}"
       when:
         - dns_servers_ips is defined
+        - dns_servers_ips | length > 0
 
     - name: Define avi_systemconfiguration
       set_fact:
@@ -48,10 +50,11 @@
             ntp_servers: "{{ ntp_servers | default(omit) }}"
           dns_configuration:
             search_domain: ''
-            server_list: "{{ server_list }}"
+            server_list: "{{ server_list | default(omit) }}"
           email_configuration:
             from_email: "{{ controller.email_configuration | default('test@avicontroller.net') }}"
             smtp_type: SMTP_LOCAL_HOST
+          default_license_tier: ENTERPRISE
       when:
         - ntp_servers is defined
         - server_list is defined

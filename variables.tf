@@ -105,7 +105,7 @@ variable "vcenter_network_k8s_ipam_pool" {
 }
 
 variable "avi_version" {
-  default = "21.1.2"
+  default = "21.1.3"
 }
 
 variable "avi_domain" {
@@ -143,7 +143,7 @@ variable "ako_deploy" {
 }
 
 variable "ako_version" {
-  default = "1.5.1"
+  default = "1.6.1"
 }
 
 variable "ako_service_type" {

@@ -7,7 +7,7 @@ locals {
 data "template_file" "values" {
   count = 1
   depends_on = [null_resource.ansible_avi, null_resource.K8s_sanity_check]
-  template = file("templates/values.yml.template")
+  template = file("templates/values.yml.${var.ako_version}.template")
   vars = {
     disableStaticRouteSync = "false"
     clusterName  = "cluster1"
