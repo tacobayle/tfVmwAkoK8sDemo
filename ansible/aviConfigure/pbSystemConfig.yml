@@ -54,7 +54,6 @@
           email_configuration:
             from_email: "{{ controller.email_configuration | default('test@avicontroller.net') }}"
             smtp_type: SMTP_LOCAL_HOST
-          default_license_tier: ENTERPRISE
       when:
         - ntp_servers is defined
         - server_list is defined
@@ -68,6 +67,7 @@
         ntp_configuration: "{{ avi_systemconfiguration.ntp_configuration }}"
         email_configuration: "{{ avi_systemconfiguration.email_configuration }}"
         welcome_workflow_complete: "{{ avi_systemconfiguration.welcome_workflow_complete }}"
+        default_license_tier: ENTERPRISE
       when:
         - avi_systemconfiguration is defined
       tags:
