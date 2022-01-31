@@ -1,6 +1,6 @@
 #!/bin/bash
-# check if TF is installed
-# check if jq is installed
+type terraform >/dev/null 2>&1 || { echo >&2 "terraform is not installed - please visit: https://learn.hashicorp.com/tutorials/terraform/install-cli to install it - Aborting." ; exit 255; }
+type jq >/dev/null 2>&1 || { echo >&2 "jq is not installed - please install it - Aborting." ; exit 255; }
 run_cmd() {
   retry=10
   pause=20
@@ -98,8 +98,6 @@ unset TF_VAR_vcenter_network_k8s_cidr ; until [ ! -z "$TF_VAR_vcenter_network_k8
 unset TF_VAR_vcenter_network_k8s_ip4_addresses ; until [ ! -z "$TF_VAR_vcenter_network_k8s_ip4_addresses" ] ; do echo -n "enter 3 free IPs separated by commas to use in the k8s network (like: 100.100.100.200, 100.100.100.201, 100.100.100.202): " ; read -r TF_VAR_vcenter_network_k8s_ip4_addresses ; done
 unset TF_VAR_vcenter_network_k8s_ipam_pool ; until [ ! -z "$TF_VAR_vcenter_network_k8s_ipam_pool" ] ; do echo -n "enter a range of IPs for vip network separated by hyphen (like: 100.100.100.100 - 100.100.100.199): " ; read -r TF_VAR_vcenter_network_k8s_ipam_pool ; done
 clear
-# Avi version
-unset TF_VAR_avi_version ; assign_var_from_json_file "Avi version" "avi_versions.json" ; TF_VAR_avi_version=$(cat .var)
 # domain
 unset TF_VAR_avi_domain ; until [ ! -z "$TF_VAR_avi_domain" ] ; do echo -n "enter a domain name (like: avi.com): " ; read -r TF_VAR_avi_domain ; done
 # CNI
@@ -111,8 +109,28 @@ fi
 if [[ $TF_VAR_K8s_cni_name == "calico" ]] || [[ TF_VAR_K8s_cni_name == "flannel" ]] ; then
     TF_VAR_ako_service_type="ClusterIP"
 fi
+# Avi version
+unset TF_VAR_avi_version ; assign_var_from_json_file "Avi version" "avi_versions.json" ; TF_VAR_avi_version=$(cat .var)
 # Ako version
-unset TF_VAR_ako_version ; assign_var_from_json_file "AKO version" "ako_versions.json" ; TF_VAR_ako_version=$(cat .var)
+unset TF_VAR_ako_version
+rm -f .var
+echo "Select AKO version..."
+if [[ $(jq -c -r '.["'$TF_VAR_avi_version'"]' ako_versions.json | jq length) -eq 1 ]] ; then
+  echo "defaulting to $(jq -c -r '.["'$TF_VAR_avi_version'"]' ako_versions.json | jq -c -r .[0])"
+  TF_VAR_ako_version=$(jq -c -r '.["'$TF_VAR_avi_version'"]' ako_versions.json | jq -c -r .[0])
+else
+  count=1
+  IFS=$'\n'
+  for item in $(jq -c -r '.["'$TF_VAR_avi_version'"]' ako_versions.json)
+    do
+      echo "$count: $item"
+      count=$((count+1))
+    done
+  re='^[0-9]+$' ; yournumber=""
+  until [[ $yournumber =~ $re ]] ; do echo -n "AKO version number: " ; read -r yournumber ; done
+  yournumber=$((yournumber-1))
+  TF_VAR_ako_version=$(jq -c -r '.["'$TF_VAR_avi_version'"]' ako_versions.json | jq -c -r .[$yournumber])
+fi
 # AKO deploy
 assign_var_boolean "deploy AKO" "ako_deploy" "booleans.json"
 # avi url

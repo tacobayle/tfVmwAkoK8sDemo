@@ -171,24 +171,7 @@ ssh -o StrictHostKeyChecking=no -i ~/.ssh/ssh_private_key-remo_ako.pem -t ubuntu
     ```shell
     k get pods -A
     ```
-- K8s deployment:  
-  - Create a K8s deployment:
-    ```
-    k apply -f deployment.yml
-    ```
-  - Verify your K8s deployment:
-    ```
-    k get deployment
-    ```
-- K8s service (type ClusterIP):
-  - Create a K8s service (type ClusterIP):
-    ```
-    k apply -f service_clusterIP.yml
-    ```
-  - Verify your K8s services:
-    ```
-    k get svc
-    ```
+  
 - K8s service (type LoadBalancer):  
   - Create a K8s service (type LoadBalancer):
     ```
@@ -199,10 +182,21 @@ ssh -o StrictHostKeyChecking=no -i ~/.ssh/ssh_private_key-remo_ako.pem -t ubuntu
     k get svc
     ```  
   - this triggers a new VS in the Avi controller
+
+- K8s deployment:
+  - Create a K8s deployment:
+    ```
+    k apply -f deployment.yml
+    ```
+  - Verify your K8s deployment:
+    ```
+    k get deployment
+    ```
   - you can check this new application by connecting/sshing to your client_demo VM and doing something like:
     ```shell
     curl web1.default.avi.com
     ```
+    
 - Scale your deployment:
   - scale your deployment using:  
     ```
@@ -210,6 +204,14 @@ ssh -o StrictHostKeyChecking=no -i ~/.ssh/ssh_private_key-remo_ako.pem -t ubuntu
     ```
   - this triggers the pool to be scaled automatically for your Avi VS
 - ingress (non HTTPS)
+  - Create a K8s service (type ClusterIP):
+    ```
+    k apply -f service_clusterIP.yml
+    ```
+  - Verify your K8s services:
+    ```
+    k get svc
+    ```  
   - Create an ingress:
     ```
     k apply -f ingress.yml
