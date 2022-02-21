@@ -174,12 +174,12 @@ resource "vsphere_virtual_machine" "destroy_env_vm" {
 
   provisioner "file" {
     source      = "~/.ssh/${var.ssh_key.private_key_basename}-${random_string.id.result}.pem"
-    destination = "~/.ssh/${var.ssh_key.private_key_basename}-${random_string.id.result}.pem"
+    destination = "/home/${var.destroy_env_vm.username}/.ssh/${var.ssh_key.private_key_basename}-${random_string.id.result}.pem"
   }
 
   provisioner "file" {
     source      = "bash/destroyAvi.sh"
-    destination = "~/destroyAvi.sh"
+    destination = "/home/${var.destroy_env_vm.username}/destroyAvi.sh"
   }
 
   provisioner "remote-exec" {

@@ -17,7 +17,7 @@ This repo spin up a full Avi environment in vCenter with one K8s clusters in ord
 
 ## Prerequisites:
 
-A VM which has terraform installed:
+A VM which has terraform and govc installed:
 
 ```shellTerraform v1.0.6
 on linux_amd64
@@ -27,6 +27,10 @@ on linux_amd64
 + provider registry.terraform.io/hashicorp/template v2.2.0
 + provider registry.terraform.io/hashicorp/tls v3.1.0
 + provider registry.terraform.io/hashicorp/vsphere v2.0.2
+```
+
+```
+https://github.com/vmware/govmomi/tree/master/govc
 ```
 
 ## clone this repo:

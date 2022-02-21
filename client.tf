@@ -198,7 +198,7 @@ resource "null_resource" "add_nic_to_client" {
       export GOVC_URL=${var.vsphere_server}
       export GOVC_CLUSTER=${var.vcenter_cluster}
       export GOVC_INSECURE=true
-      /usr/local/bin/govc vm.network.add -vm "${var.client.basename}${random_string.id.result}" -net ${var.vcenter_network_vip_name}
+      /usr/local/bin/govc vm.network.add -vm "${var.client.basename}${random_string.id.result}" -net "${var.vcenter_network_vip_name}"
     EOT
   }
 }
