@@ -44,10 +44,6 @@ variable "vcenter_network_mgmt_name" {
   default = "vxw-dvs-34-virtualwire-3-sid-6120002-wdc-06-vc12-avi-mgmt"
 }
 
-variable "ntp_servers_ips" {
-  default = "10.206.8.130, 10.206.8.131"
-}
-
 variable "vcenter_network_mgmt_dhcp" {
   default = true
 }
@@ -61,6 +57,10 @@ variable "vcenter_network_mgmt_network_cidr" {
 }
 
 variable "vcenter_network_mgmt_network_dns" {
+  default = "10.206.8.130, 10.206.8.131"
+}
+
+variable "ntp_servers_ips" {
   default = "10.206.8.130, 10.206.8.131"
 }
 

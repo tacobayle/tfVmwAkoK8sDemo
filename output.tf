@@ -40,11 +40,11 @@ output "Ssh_password" {
   value = random_string.password.result
 }
 
-//output "Destroy_command_all" {
-//  value = "ssh -o StrictHostKeyChecking=no -i ~/.ssh/${var.ssh_key.private_key_basename}-${var.vcenter.folder}.pem -t ubuntu@${vsphere_virtual_machine.destroy_env_vm.default_ip_address} 'cd aviAbsent ; ansible-playbook local.yml --extra-vars @${var.controller.aviCredsJsonFile}' ; sleep 5 ; terraform destroy -auto-approve -var-file=vcenter.json"
-//  description = "command to destroy the infra"
-//}
-//
+output "Destroy_command_all" {
+  value = var.vcenter_network_mgmt_dhcp == true ? "ssh -o StrictHostKeyChecking=no -i ~/.ssh/${var.ssh_key.private_key_basename}-${random_string.id.result}.pem -t ubuntu@${vsphere_virtual_machine.destroy_env_vm[0].default_ip_address} './destroyAvi.sh'; sleep 5 ; terraform destroy -auto-approve" : "ssh -o StrictHostKeyChecking=no -i ~/.ssh/${var.ssh_key.private_key_basename}-${random_string.id.result}.pem -t ubuntu@${split(",", replace(var.vcenter_network_mgmt_ip4_addresses, " ", ""))[2]} './destroyAvi.sh'; sleep 5 ; terraform destroy -auto-approve"
+  description = "command to destroy the avi config"
+}
+
 output "Destroy_command_wo_tf" {
   value = var.vcenter_network_mgmt_dhcp == true ? "ssh -o StrictHostKeyChecking=no -i ~/.ssh/${var.ssh_key.private_key_basename}-${random_string.id.result}.pem -t ubuntu@${vsphere_virtual_machine.destroy_env_vm[0].default_ip_address} './destroyAvi.sh'" : "ssh -o StrictHostKeyChecking=no -i ~/.ssh/${var.ssh_key.private_key_basename}-${random_string.id.result}.pem -t ubuntu@${split(",", replace(var.vcenter_network_mgmt_ip4_addresses, " ", ""))[2]} './destroyAvi.sh'"
   description = "command to destroy the avi config"

@@ -1,127 +1,89 @@
-# byoa (Bring your Own AKO Demo)
+# tfVmwAkoK8sDemo
 
 ## Goal of this repo
 
-This repo spin up a full Avi environment in vCenter in conjunction with 2 \* k8s clusters in order to demonstrate AKO:
+This repo spin up a full Avi environment in vCenter with one K8s clusters in order to demonstrate AKO.
 
-- cluster#1 uses Calico with ClusterIP
-- cluster#2 uses Antrea with LocalNodePort
-- Every machine is using DCHP so no static IPs is used
+- K8s cluster can be configured with Antrea, Calico or Flanel as a CNI
+- if CNI is antrea, AKO can rely on LocalNodePort or ClusterIP otherwise AKO will default to ClusterIP
+- For the management network, every VM is using either IP DHCP allocation or static IP address
+- For the K8s network, master and workers VMs are using static IP addresses and SE(s) will rely on Avi IPAM
+- For the vip network, client VM is using static IP address and SE(s) will rely on Avi IPAM.
+
+## Network diagram
+
+![Alt text](img/tfVmwAkoK8sDemo.png?raw=true "Title")
+
 
 ## Prerequisites:
 
-A VM which has terraform installed
+A VM which has terraform installed:
 
-- Terraform:
-
-```shell
-ubuntu@ubuntuguest:~/bash_byoa$ terraform -v
-Terraform v1.0.6
+```shellTerraform v1.0.6
 on linux_amd64
++ provider registry.terraform.io/hashicorp/local v2.1.0
++ provider registry.terraform.io/hashicorp/null v3.1.0
++ provider registry.terraform.io/hashicorp/random v3.1.0
++ provider registry.terraform.io/hashicorp/template v2.2.0
++ provider registry.terraform.io/hashicorp/tls v3.1.0
++ provider registry.terraform.io/hashicorp/vsphere v2.0.2
 ```
-
-https://learn.hashicorp.com/tutorials/terraform/install-cli
-
-- Inside the target vCenter:
-  - Have a VM template ready for Avi Controller called `controller-21.1.1-template`
-  - Have a VM template ready for Ubuntu focal called `ubuntu-focal-20.04-cloudimg-template`
-  - Have a VM template ready for Ubuntu bionic called `ubuntu-bionic-18.04-cloudimg-template`
-  - DHCP available for the following networks:
-    - management network defined in vcenter.management_network.name
-    - k8s network defined in vcenter.k8s_network.name
-
-## VM Templates
-
-This lab is using the template under the Nicolas folder templates which contains:
-- ubuntu-bionic-18.04-cloudimg-template
-- ubuntu-focal-20.04-cloudimg-template
-- controller-20.1.2-9171-template
 
 ## clone this repo:
 
-git clone https://github.com/tacobayle/byoa
+git clone https://github.com/tacobayle/tfVmwAkoK8sDemo
 
 ## Variables:
 
-- Define the following environment variables:
-  - `vsphere_username`
-  - `vsphere_password`
-  - `vsphere_server`
-  - `avi_vsphere_server # use IP and not FQDN`
-  - `docker_registry_username # this will avoid download issue when downloading docker images`
-  - `docker_registry_password # this will avoid download issue when downloading docker images`
-  - `docker_registry_email # this will avoid download issue when downloading docker images`
+| Variable names        | Description           | Mandatory  | Example | variable source suggestion| 
+| --------------------- |---------------------|:----------:|:--------|:--------|
+| vsphere_username      | vsphere_username | true |administrator| environment variable |
+| vsphere_password      | vsphere_password | true |******|environment variable |
+| docker_registry_username | docker_registry_username      |    false |my_docker_login| environment variable |
+| docker_registry_password | docker_registry_password      |    false |my_docker_password| environment variable |
+| docker_registry_email | docker_registry_email      |    false |my_docker_email| environment variable |
+| avi_controller_url | URL to download the OVA of Avi     |    true | "*****"|environment variable |
+| vsphere_server | vsphere_server      |    true | wdc-06-vc12.oc.vmware.com| TF variable variable |
+| vcenter_dc | vcenter_dc      |    true | wdc-06-vc12|TF variable variable |
+| vcenter_cluster | vcenter_cluster      |    true | wdc-06-vc12c01|TF variable variable |
+| vcenter_datastore | vcenter_datastore      |    true | wdc-06-vc12c01-vsan|TF variable variable |
+| vcenter_folder | vcenter_folder where all the VMs will be stored      |    true | tf_ako_k8s_demo|TF variable variable |
+| vcenter_network_mgmt_name | vcenter_network_mgmt_name      |    true | vxw-dvs-34-virtualwire-3-sid-6120002-wdc-06-vc12-avi-mgmt|TF variable variable |
+| vcenter_network_mgmt_dhcp | Use dhcp for mgmt network?     |    true | true |TF variable variable |
+| vcenter_network_mgmt_ip4_addresses | list of IP addresses separated by comma (if dhcp is disabled) - 6 IPs are required    |    true | "10.206.112.70, 10.206.112.71, 10.206.112.72, 10.206.112.73, 10.206.112.74, 10.206.112.75"|TF variable variable |
+| vcenter_network_mgmt_network_cidr | vcenter_network_mgmt_network_cidr     |    true | "10.206.112.0/22"|TF variable variable |
+| vcenter_network_mgmt_network_dns | vcenter_network_mgmt_network_dns to be configured in the Avi Controller     |    true | "10.206.8.130, 10.206.8.131"|TF variable variable |
+| ntp_servers_ips | ntp_servers_ips to be configured in the Avi Controller     |    true | "10.206.8.130, 10.206.8.131"|TF variable variable |
+| vcenter_network_mgmt_gateway4 | Default gateway of the management network     |    true | "10.206.112.1"|TF variable variable |
+| vcenter_network_mgmt_ipam_pool | Avi IPAM pool to allocate IP for the Avi SE     |    true | "10.206.112.55 - 10.206.112.57"|TF variable variable |
+| vcenter_network_vip_name | vcenter_network_vip_name     |    true | "vxw-dvs-34-virtualwire-120-sid-6120119-wdc-06-vc12-avi-dev116"|TF variable variable |
+| vcenter_network_vip_cidr | vcenter_network_vip_cidr     |    true | "10.1.100.0/24"|TF variable variable |
+| vcenter_network_vip_ipam_pool | Avi IPAM pool to allocate IP for the Avi SE     |    true | "10.1.100.100 - 10.1.100.199"|TF variable variable |
+| vcenter_network_k8s_name | vcenter_network_k8s_name     |    true | "vxw-dvs-34-virtualwire-116-sid-6120115-wdc-06-vc12-avi-dev112"|TF variable variable |
+| vcenter_network_k8s_cidr | vcenter_network_k8s_cidr     |    true | "100.100.100.0/24"|TF variable variable |
+| vcenter_network_k8s_ip4_addresses | list of IP addresses separated by comma - 3 IPs are required     |    true | "100.100.100.200, 100.100.100.201, 100.100.100.202"|TF variable variable |
+| vcenter_network_k8s_ipam_pool | Avi IPAM pool to allocate IP for the Avi SE     |    true | "100.100.100.100 - 100.100.100.199"|TF variable variable |
+| avi_version | Avi Version     |    true | "21.1.3"|TF variable variable |
+| avi_domain | Avi Domain name     |    true | "avi.com"|TF variable variable |
+| K8s_cni_name | CNI name: calico, flannel or antrea     |    true | "calico"|TF variable variable |
+| ako_version | AKO version     |    true | "1.6.1"|TF variable variable |
+| ako_service_type | AKO service type - used only for CNI antrea     |    true | "NodePortLocal"|TF variable variable |
 
-which can be defined as the example below which uses a file called env.txt
-
-IMPORTANT: You must verify that the variable are set. Run echo $TF_VAR_vsphere_username and make sure you get your user.
-
-To load the variables use the following command:
-
-```
-export $(xargs <env.txt)
-```
-
-ENV file:
-
-```
-export TF_VAR_vsphere_username=XXX
-export TF_VAR_vsphere_password=XXX
-export TF_VAR_vsphere_server=XXX
-
-export TF_VAR_avi_vsphere_server=XXX
-
-
-export TF_VAR_docker_registry_password=XXX
-export TF_VAR_docker_registry_email=XXX
-export TF_VAR_docker_registry_username=XXX
-```
-
-- Define the following vCenter variables inside vcenter.json
-
-```
-{
-  "vcenter": {
-    "dc": "wdc-06-vc12",
-    "cluster": "wdc-06-vc12c01",
-    "datastore": "wdc-06-vc12c01-vsan",
-    "resource_pool": "wdc-06-vc12c01/Resources",
-    "folder": "Nic_K8S",
-    "management_network": {
-      "name": "vxw-dvs-34-virtualwire-3-sid-6120002-wdc-06-vc12-avi-mgmt"
-    },
-    "vip_network": {
-      "name": "vxw-dvs-34-virtualwire-120-sid-6120119-wdc-06-vc12-avi-dev116",
-      "cidr": "10.1.1.0/24"
-    },
-    "k8s_network": {
-      "name": "vxw-dvs-34-virtualwire-116-sid-6120115-wdc-06-vc12-avi-dev112"
-    }
-  }
-}
-```
-
-- For the SE doing the demo, most of the other variables used can be kept as currently set. No need to change anything.
 
 ## Use terraform apply to:
 
 - Create a new folder within vCenter
-- Create a jump host within the vCenter folder attached to management network leveraging DHCP
-- Create a client VM within the vCenter folder attached to management network leveraging DHCP and to the vip network using a static IP (defined in client.vip_IP) with Avi DNS configured as DNS server
-- Create/Configure 2 \* k8s clusters:
-  - master and worker nodes are attached to management network and k8s network leveraging DHCP
+- Create an admin (destroy_env_vm) VM within the vCenter folder attached to management network
+- Create a client VM within the vCenter folder attached to management network and the vip network
+- Create an Avi Controller VM within the vCenter folder attached to management network
+- Create/Configure 2 a K8s cluster:
+  - master and two worker nodes are attached to management network and k8s network
   - 1 master node per cluster
   - 2 workers nodes per cluster
-  - k8S version is defined per cluster in variables.tf (vmw.kubernetes.[].version)
-  - Docker version is defined per cluster in variables.tf (vmw.kubernetes.[].docker.version)
-  - AKO version is defined per cluster in variables.tf (vmw.kubernetes.[].ako.version)
-  - CNI name is defined (vmw.kubernetes.[].cni.name)
-  - CNI yaml manifest url is defined (vmw.kubernetes.[].cni.url)
-- Spin up 1 Avi Controller VM within the vCenter folder attached to management network leveraging DHCP
 - Configure Avi Controller:
   - Bootstrap Avi Controller (Password, NTP, DNS)
-  - VMW cloud
-  - Service Engine Groups (Default SEG is used for VMware Cloud and by cluster#2), a dedicated SEG is configured for cluster#1
+  - vCenter cloud configuration
+  - Service Engine Groups
   - DNS VS is used in order to demonstrate FQDN registration reachable outside k8s cluster
 
 ## Run terraform:
@@ -130,7 +92,7 @@ export TF_VAR_docker_registry_username=XXX
 
 ```
 terraform init
-terraform apply -auto-approve -var-file=vcenter.json
+terraform apply -auto-approve
 ```
 
 - destroy:
@@ -142,7 +104,7 @@ Use the command provided by terraform output
 The terraform output should look similar to the following:
 
 ```
-ssh -o StrictHostKeyChecking=no -i ~/.ssh/ssh_private_key-remo_ako.pem -t ubuntu@100.206.114.98 'cd aviAbsent ; ansible-playbook local.yml --extra-vars @~/.avicreds.json' ; sleep 5 ; terraform destroy -auto-approve -var-file=vcenter.json
+ssh -o StrictHostKeyChecking=no -i ~/.ssh/ssh_private_key-remo_ako.pem -t ubuntu@100.206.114.98 'cd aviAbsent ; ansible-playbook local.yml --extra-vars @~/.avicreds.json' ; sleep 5 ; terraform destroy -auto-approve
 ```
 
 ## Demonstrate AKO
@@ -151,7 +113,7 @@ ssh -o StrictHostKeyChecking=no -i ~/.ssh/ssh_private_key-remo_ako.pem -t ubuntu
   - the SE takes few minutes to come up
   - an alias has been created to use "k" instead of "kubectl" command
   - all the VS are reachable by connecting to the client vm using the FQDN of the VS
-  - be patient when you try to test the app from the client VM (cluster 1 will need new SEs) and the DNS registration takes a bit of time
+  - be patient when you try to test the app from the client VM: the DNS registration takes a bit of time
   - prior to deploying the ako on each single cluster, always make sure of the status (Ready) of the k8s clusters by using such command below:
   ```
   ubuntu@cluster1-master:~$ k get nodes
@@ -163,7 +125,7 @@ ssh -o StrictHostKeyChecking=no -i ~/.ssh/ssh_private_key-remo_ako.pem -t ubuntu
   ```
 - connect to one of the master node using ssh (username and password are part of the outputs)
 - AKO installation (this can be done prior or during the demo)
-  - on each master node: use the command generated by the "output of the Terraform" to be applied:
+  - on the master node: use the command generated by the "output of the Terraform" to be applied:
     ```
     helm install...
     ```
