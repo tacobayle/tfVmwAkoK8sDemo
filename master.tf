@@ -2,8 +2,8 @@ data "template_file" "network_master_static" {
   count = (var.vcenter_network_mgmt_dhcp == false ? 1 : 0)
   template = file("templates/network_master_static.template")
   vars = {
-    if_name_main = var.master.if_name_main
-    if_name_second = var.master.if_name_second
+//    if_name_main = var.master.if_name_main
+//    if_name_second = var.master.if_name_second
     ip4_main = "${split(",", replace(var.vcenter_network_mgmt_ip4_addresses, " ", ""))[3]}/${split("/", var.vcenter_network_mgmt_network_cidr)[1]}"
     gw4 = var.vcenter_network_mgmt_gateway4
     dns = var.vcenter_network_mgmt_network_dns
@@ -11,20 +11,20 @@ data "template_file" "network_master_static" {
   }
 }
 
-data "template_file" "network_master_dhcp" {
-  count = (var.vcenter_network_mgmt_dhcp == true ? 1 : 0)
-  template = file("templates/network_master_dhcp.template")
-  vars = {
-    if_name_main = var.master.if_name_main
-  }
-}
+//data "template_file" "network_master_dhcp" {
+//  count = (var.vcenter_network_mgmt_dhcp == true ? 1 : 0)
+//  template = file("templates/network_master_dhcp.template")
+//  vars = {
+//    if_name_main = var.master.if_name_main
+//  }
+//}
 
 data "template_file" "network_master_dhcp_static" {
   count = (var.vcenter_network_mgmt_dhcp == true ? 1 : 0)
   template = file("templates/network_master_dhcp_static.template")
   vars = {
-    if_name_main = var.master.if_name_main
-    if_name_second = var.master.if_name_second
+//    if_name_main = var.master.if_name_main
+//    if_name_second = var.master.if_name_second
     ip4_second = "${split(",", replace(var.vcenter_network_k8s_ip4_addresses, " ", ""))[0]}/${split("/", var.vcenter_network_k8s_cidr)[1]}"
   }
 }
@@ -41,7 +41,7 @@ data "template_file" "master_userdata_static" {
     Docker_version = var.Docker_version
     K8s_network_pod = var.K8s_network_pod
 //    K8s_cni_url = var.K8s_cni_url
-    if_name_k8s = var.master.if_name_second
+//    if_name_k8s = var.master.if_name_second
     cni_name = var.K8s_cni_name
     ako_service_type = local.ako_service_type
     docker_registry_username = var.docker_registry_username
@@ -56,13 +56,13 @@ data "template_file" "master_userdata_dhcp" {
     password      = var.static_password == null ? random_string.password.result : var.static_password
     net_plan_file = var.master.net_plan_file
     hostname = "${var.master.basename}${random_string.id.result}"
-    network_config  = base64encode(data.template_file.network_master_dhcp[count.index].rendered)
+//    network_config  = base64encode(data.template_file.network_master_dhcp[count.index].rendered)
     K8s_version = var.K8s_version
     Docker_version = var.Docker_version
     K8s_network_pod = var.K8s_network_pod
 //    K8s_cni_url = var.K8s_cni_url
     network_config_static  = base64encode(data.template_file.network_master_dhcp_static[0].rendered)
-    if_name_k8s = var.master.if_name_second
+//    if_name_k8s = var.master.if_name_second
     cni_name = var.K8s_cni_name
     ako_service_type = local.ako_service_type
     docker_registry_username = var.docker_registry_username
@@ -138,7 +138,7 @@ resource "null_resource" "add_nic_to_master" {
       export GOVC_URL=${var.vsphere_server}
       export GOVC_CLUSTER=${var.vcenter_cluster}
       export GOVC_INSECURE=true
-      /usr/local/bin/govc vm.network.add -vm "${var.master.basename}${random_string.id.result}" -net ${var.vcenter_network_k8s_name}
+      /usr/local/bin/govc vm.network.add -vm "${var.master.basename}${random_string.id.result}" -net "${var.vcenter_network_k8s_name}"
     EOT
   }
 }
@@ -162,19 +162,23 @@ resource "null_resource" "update_ip_to_master" {
 
   provisioner "remote-exec" {
     inline = var.vcenter_network_mgmt_dhcp == true ? [
+      "if_secondary_name=$(ip -o link show | awk -F': ' '{print $2}' | grep -v docker  | tail -1)",
+      "sed -i -e \"s/if_name_secondary_to_be_replaced/\"$if_secondary_name\"/g\" /tmp/50-cloud-init.yaml",
       "sudo cp /tmp/50-cloud-init.yaml ${var.master.net_plan_file}",
       "sudo netplan apply",
       "sleep 10",
       "sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.old",
-      "ip=$(ip -f inet addr show ${var.master.if_name_second} | awk '/inet / {print $2}' | awk -F/ '{print $1}')",
+      "ip=$(ip -f inet addr show $if_secondary_name | awk '/inet / {print $2}' | awk -F/ '{print $1}')",
       "sudo sed '$${s/$/ --node-ip '$ip'/}' /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.old | sudo tee /etc/systemd/system/kubelet.service.d/10-kubeadm.conf",
       "sudo systemctl daemon-reload",
       "sudo systemctl restart kubelet"
     ] : [
+      "if_secondary_name=$(ip -o link show | awk -F': ' '{print $2}' | grep -v docker  | tail -1)",
+      "sed -i -e \"s/if_name_secondary_to_be_replaced/\"$if_secondary_name\"/g\" /tmp/50-cloud-init.yaml",
       "sudo netplan apply",
       "sleep 10",
       "sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.old",
-      "ip=$(ip -f inet addr show ${var.master.if_name_second} | awk '/inet / {print $2}' | awk -F/ '{print $1}')",
+      "ip=$(ip -f inet addr show $if_secondary_name | awk '/inet / {print $2}' | awk -F/ '{print $1}')",
       "sudo sed '$${s/$/ --node-ip '$ip'/}' /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.old | sudo tee /etc/systemd/system/kubelet.service.d/10-kubeadm.conf",
       "sudo systemctl daemon-reload",
       "sudo systemctl restart kubelet"

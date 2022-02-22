@@ -240,8 +240,8 @@ variable "master" {
     basename = "master-tf-"
     username = "ubuntu"
     cpu = 2
-    if_name_main = "ens192"
-    if_name_second = "ens33"
+//    if_name_main = "ens192"
+//    if_name_second = "ens33"
     memory = 8192
     disk = 20
     net_plan_file = "/etc/netplan/50-cloud-init.yaml"

@@ -136,7 +136,7 @@ resource "null_resource" "add_nic_to_workers" {
       export GOVC_URL=${var.vsphere_server}
       export GOVC_CLUSTER=${var.vcenter_cluster}
       export GOVC_INSECURE=true
-      /usr/local/bin/govc vm.network.add -vm "${var.workers.basename}-${count.index}-${random_string.id.result}" -net ${var.vcenter_network_k8s_name}
+      /usr/local/bin/govc vm.network.add -vm "${var.workers.basename}-${count.index}-${random_string.id.result}" -net "${var.vcenter_network_k8s_name}"
     EOT
   }
 }
@@ -174,7 +174,7 @@ resource "null_resource" "update_ip_to_workers" {
       "sudo netplan apply",
       "sleep 10",
       "sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.old",
-      "ip=$(ip -f inet addr show ${var.master.if_name_second} | awk '/inet / {print $2}' | awk -F/ '{print $1}')",
+      "ip=$(ip -f inet addr show ${var.workers.if_name_second} | awk '/inet / {print $2}' | awk -F/ '{print $1}')",
       "sudo sed '$${s/$/ --node-ip '$ip'/}' /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.old | sudo tee /etc/systemd/system/kubelet.service.d/10-kubeadm.conf",
       "sudo systemctl daemon-reload",
       "sudo systemctl restart kubelet"

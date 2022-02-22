@@ -1,7 +1,7 @@
 network:
   version: 2
   ethernets:
-    ${if_name}:
+    if_name_primary_to_be_replaced:
       dhcp4: false
       addresses:
         - ${ip4}

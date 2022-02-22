@@ -45,7 +45,7 @@ output "Destroy_command_all" {
   description = "command to destroy the avi config"
 }
 
-output "Destroy_command_wo_tf" {
+output "Destroy_command_avi_config_only" {
   value = var.vcenter_network_mgmt_dhcp == true ? "ssh -o StrictHostKeyChecking=no -i ~/.ssh/${var.ssh_key.private_key_basename}-${random_string.id.result}.pem -t ubuntu@${vsphere_virtual_machine.destroy_env_vm[0].default_ip_address} './destroyAvi.sh'" : "ssh -o StrictHostKeyChecking=no -i ~/.ssh/${var.ssh_key.private_key_basename}-${random_string.id.result}.pem -t ubuntu@${split(",", replace(var.vcenter_network_mgmt_ip4_addresses, " ", ""))[2]} './destroyAvi.sh'"
   description = "command to destroy the avi config"
 }
