@@ -82,7 +82,7 @@ write_files:
     permissions: "0755"
   - encoding: base64
     content: ${network_config}
-    path: /etc/netplan/50-cloud-init.yaml
+    path: ${net_plan_file}
   - content: |
       network: {config: disabled}
     path: /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg
