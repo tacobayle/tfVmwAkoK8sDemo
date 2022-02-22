@@ -6,13 +6,13 @@
   vars_files:
     - "vars/params.yml"
 
-  roles:
-    - role: "avinetworks.avisdk"
+  collections:
+    - vmware.alb
 
   tasks:
 
     - name: Create Backup Configuration passphrase
-      community.network.avi_backupconfiguration:
+      vmware.alb.avi_backupconfiguration:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         state: present
@@ -59,7 +59,7 @@
         - server_list is defined
 
     - name: Configure Avi System parameters
-      community.network.avi_systemconfiguration:
+      vmware.alb.avi_systemconfiguration:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         global_tenant_config: "{{ avi_systemconfiguration.global_tenant_config }}"
@@ -74,7 +74,7 @@
         - system
 
     - name: Create HTTP health monitor
-      community.network.avi_healthmonitor:
+      vmware.alb.avi_healthmonitor:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         name: "{{ item.name }}"

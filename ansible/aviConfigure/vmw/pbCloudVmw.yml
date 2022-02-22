@@ -3,13 +3,13 @@
   connection: local
   gather_facts: no
 
-  roles:
-    - role: "avinetworks.avisdk"
+  collections:
+    - vmware.alb
 
   tasks:
 
     - name: Create Avi DNS provider Without donain names
-      community.network.avi_ipamdnsproviderprofile:
+      vmware.alb.avi_ipamdnsproviderprofile:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         name: "dns-avi"
@@ -18,7 +18,7 @@
         - avi_domain is defined
 
     - name: Update Avi DNS provider With donain names
-      community.network.avi_ipamdnsproviderprofile:
+      vmware.alb.avi_ipamdnsproviderprofile:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         avi_api_patch_op: add
@@ -71,7 +71,7 @@
         - not vsphere_server | ansible.netcommon.ipaddr
 
     - name: Configure Avi Cloud
-      community.network.avi_cloud:
+      vmware.alb.avi_cloud:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         name:  "dc1_vCenter"
@@ -94,7 +94,7 @@
         - vmw
 
     - name: Wait for network sync for cloud to complete...
-      community.network.avi_api_session:
+      vmware.alb.avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: "get"
@@ -107,7 +107,7 @@
       delay: 5
 
     - name: Configure cloud management network
-      community.network.avi_api_session:
+      vmware.alb.avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: "patch"
@@ -121,7 +121,7 @@
         - cloud_vmw_uuid is defined
 
     - name: get Network details
-      community.network.avi_api_session:
+      vmware.alb.avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: get
@@ -157,7 +157,7 @@
         - vcenter_network_mgmt_ipam_pool is defined
 
     - name: Update Mgmt Network - with DHCP
-      community.network.avi_network:
+      vmware.alb.avi_network:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         cloud_ref: "/api/cloud/?name=dc1_vCenter"
@@ -175,7 +175,7 @@
         - ipamdns
 
     - name: Update Mgmt Network - wo DHCP
-      community.network.avi_network:
+      vmware.alb.avi_network:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         cloud_ref: "/api/cloud/?name=dc1_vCenter"
@@ -195,7 +195,7 @@
         - ipamdns
 
     - name: get Network details
-      community.network.avi_api_session:
+      vmware.alb.avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: get
@@ -230,7 +230,7 @@
         - vcenter_network_vip_ipam_pool is defined
 
     - name: Update Vip Network
-      community.network.avi_network:
+      vmware.alb.avi_network:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         cloud_ref: "/api/cloud/?name=dc1_vCenter"
@@ -246,7 +246,7 @@
         - ipam
 
     - name: get Network details
-      community.network.avi_api_session:
+      vmware.alb.avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: get
@@ -281,7 +281,7 @@
         - vcenter_network_k8s_ipam_pool is defined
 
     - name: Update K8s Network
-      community.network.avi_network:
+      vmware.alb.avi_network:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         cloud_ref: "/api/cloud/?name=dc1_vCenter"
@@ -297,7 +297,7 @@
         - ipam
 
     - name: Create Avi IPAM for Mgmt dhcp
-      community.network.avi_ipamdnsproviderprofile:
+      vmware.alb.avi_ipamdnsproviderprofile:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         internal_profile:
@@ -314,7 +314,7 @@
         - ipam
 
     - name: Create Avi IPAM for Mgmt static
-      community.network.avi_ipamdnsproviderprofile:
+      vmware.alb.avi_ipamdnsproviderprofile:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         internal_profile:
@@ -333,7 +333,7 @@
         - ipam
 
     - name: Update Avi Cloud (Vcenter) with IPAM
-      community.network.avi_cloud:
+      vmware.alb.avi_cloud:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         avi_api_update_method: patch
@@ -350,7 +350,7 @@
         - dns
 
     - name: Modify/Creating SE group - VMW - for K8S cluster
-      community.network.avi_serviceenginegroup:
+      vmware.alb.avi_serviceenginegroup:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         cloud_ref: "/api/cloud/?name=dc1_vCenter"

@@ -3,8 +3,8 @@
   connection: local
   gather_facts: no
 
-  roles:
-    - role: "avinetworks.avisdk"
+  collections:
+    - vmware.alb
 
   tasks:
 
@@ -15,7 +15,7 @@
         - debug
 
     - name: Get GSLB list
-      community.network.avi_api_session:
+      vmware.alb.avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: get
@@ -24,7 +24,7 @@
       ignore_errors: yes
 
     - name: Delete Glsb services - it may fails if not executed in the leader cluster
-      community.network.avi_api_session:
+      vmware.alb.avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: "delete"
@@ -33,7 +33,7 @@
       loop: "{{ gslbserviceResults.obj.results }}"
 
     - name: Get GSLB profile
-      community.network.avi_api_session:
+      vmware.alb.avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: get
@@ -42,7 +42,7 @@
       ignore_errors: yes
 
     - name: Delete Glsb Geo profile - it may fails if not executed in the leader cluster
-      community.network.avi_api_session:
+      vmware.alb.avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: "delete"
@@ -51,7 +51,7 @@
       ignore_errors: yes
 
     - name: Get GSLB config
-      community.network.avi_api_session:
+      vmware.alb.avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: get
@@ -60,7 +60,7 @@
       ignore_errors: yes
 
     - name: Delete Glsb config - it may fails if not executed in the leader cluster
-      community.network.avi_api_session:
+      vmware.alb.avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: "delete"
@@ -69,7 +69,7 @@
       ignore_errors: yes
 
     - name: get DNS VS used by system
-      community.network.avi_api_session:
+      vmware.alb.avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: get
@@ -79,7 +79,7 @@
       ignore_errors: yes
 
     - name: Delete DNS VS used by system in systemconfiguration
-      community.network.avi_api_session:
+      vmware.alb.avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: patch
@@ -91,7 +91,7 @@
       ignore_errors: yes
 
     - name: get VS
-      community.network.avi_api_session:
+      vmware.alb.avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: get
@@ -101,7 +101,7 @@
       ignore_errors: yes
 
     - name: Delete child VS config
-      community.network.avi_api_session:
+      vmware.alb.avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: "delete"
@@ -114,7 +114,7 @@
         - item.type != "VS_TYPE_VH_PARENT"
 
     - name: Delete all other VS config
-      community.network.avi_api_session:
+      vmware.alb.avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: "delete"
@@ -127,7 +127,7 @@
         - item.type == "VS_TYPE_VH_PARENT"
 
     - name: Delete all VS config
-      community.network.avi_api_session:
+      vmware.alb.avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: "delete"
@@ -138,7 +138,7 @@
       ignore_errors: yes
 
     - name: get vsvip
-      community.network.avi_api_session:
+      vmware.alb.avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: get
@@ -148,7 +148,7 @@
       ignore_errors: yes
 
     - name: Delete vsvip config
-      community.network.avi_api_session:
+      vmware.alb.avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: "delete"
@@ -159,7 +159,7 @@
       ignore_errors: yes
 
     - name: get http policies
-      community.network.avi_api_session:
+      vmware.alb.avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: get
@@ -169,7 +169,7 @@
       ignore_errors: yes
 
     - name: Delete http policies
-      community.network.avi_api_session:
+      vmware.alb.avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: "delete"
@@ -180,7 +180,7 @@
       ignore_errors: yes
 
     - name: get l4 policies
-      community.network.avi_api_session:
+      vmware.alb.avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: get
@@ -190,7 +190,7 @@
       ignore_errors: yes
 
     - name: Delete l4 policies
-      community.network.avi_api_session:
+      vmware.alb.avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: "delete"
@@ -201,7 +201,7 @@
       ignore_errors: yes
 
     - name: get vs datascript
-      community.network.avi_api_session:
+      vmware.alb.avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: get
@@ -211,7 +211,7 @@
       ignore_errors: yes
 
     - name: Delete vs datascript
-      community.network.avi_api_session:
+      vmware.alb.avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: "delete"
@@ -222,7 +222,7 @@
       ignore_errors: yes
 
     - name: get pool groups
-      community.network.avi_api_session:
+      vmware.alb.avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: get
@@ -232,7 +232,7 @@
       ignore_errors: yes
 
     - name: Delete pool group config
-      community.network.avi_api_session:
+      vmware.alb.avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: "delete"
@@ -243,7 +243,7 @@
       ignore_errors: yes
 
     - name: get pools
-      community.network.avi_api_session:
+      vmware.alb.avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: get
@@ -253,7 +253,7 @@
       ignore_errors: yes
 
     - name: Delete pool config
-      community.network.avi_api_session:
+      vmware.alb.avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: "delete"
@@ -264,7 +264,7 @@
       ignore_errors: yes
 
     - name: Get SE list
-      community.network.avi_api_session:
+      vmware.alb.avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: get
@@ -273,7 +273,7 @@
       ignore_errors: yes
 
     - name: Delete SE
-      community.network.avi_api_session:
+      vmware.alb.avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: "delete"
@@ -288,7 +288,7 @@
         seconds: 20
 
 #    - name: Get SE group list
-#      community.network.avi_api_session:
+#      vmware.alb.avi_api_session:
 #        avi_credentials: "{{ avi_credentials | default(omit) }}"
 #        api_context: "{{ avi_api_context | default(omit) }}"
 #        http_method: get
@@ -297,7 +297,7 @@
 #      ignore_errors: yes
 #
 #    - name: Delete SE Groups
-#      community.network.avi_api_session:
+#      vmware.alb.avi_api_session:
 #        avi_credentials: "{{ avi_credentials | default(omit) }}"
 #        api_context: "{{ avi_api_context | default(omit) }}"
 #        http_method: "delete"
@@ -309,7 +309,7 @@
 #      ignore_errors: yes
 #
 #    - name: Delete SE group Default-Group - vCenters dependencies
-#      community.network.avi_api_session:
+#      vmware.alb.avi_api_session:
 #        avi_credentials: "{{ avi_credentials | default(omit) }}"
 #        api_context: "{{ avi_api_context | default(omit) }}"
 #        http_method: patch
@@ -324,7 +324,7 @@
 #        - item.vcenters is defined
 #
 #    - name: Get Ipam list
-#      community.network.avi_api_session:
+#      vmware.alb.avi_api_session:
 #        avi_credentials: "{{ avi_credentials | default(omit) }}"
 #        api_context: "{{ avi_api_context | default(omit) }}"
 #        http_method: get
@@ -333,7 +333,7 @@
 #      ignore_errors: yes
 #
 #    - name: Remove Networks for each IPAM
-#      community.network.avi_api_session:
+#      vmware.alb.avi_api_session:
 #        avi_credentials: "{{ avi_credentials | default(omit) }}"
 #        api_context: "{{ avi_api_context | default(omit) }}"
 #        http_method: put
@@ -347,7 +347,7 @@
 #      ignore_errors: yes
 #
 #    - name: Discover remaining configured networks
-#      community.network.avi_api_session:
+#      vmware.alb.avi_api_session:
 #        avi_credentials: "{{ avi_credentials | default(omit) }}"
 #        api_context: "{{ avi_api_context | default(omit) }}"
 #        http_method: "get"
@@ -356,7 +356,7 @@
 #      ignore_errors: yes
 #
 #    - name: Delete configured networks
-#      community.network.avi_api_session:
+#      vmware.alb.avi_api_session:
 #        avi_credentials: "{{ avi_credentials | default(omit) }}"
 #        api_context: "{{ avi_api_context | default(omit) }}"
 #        http_method: "delete"
@@ -371,7 +371,7 @@
 #        seconds: 20
 #
 #    - name: Get Clouds list
-#      community.network.avi_api_session:
+#      vmware.alb.avi_api_session:
 #        avi_credentials: "{{ avi_credentials | default(omit) }}"
 #        api_context: "{{ avi_api_context | default(omit) }}"
 #        http_method: get
@@ -380,7 +380,7 @@
 #      ignore_errors: yes
 #
 #    - name: Revert cloud to No Access (for vmw)
-#      community.network.avi_cloud:
+#      vmware.alb.avi_cloud:
 #        avi_credentials: "{{ avi_credentials | default(omit) }}"
 #        api_context: "{{ avi_api_context | default(omit) }}"
 #        name: "{{ item.name }}"
@@ -393,7 +393,7 @@
 #      ignore_errors: yes
 #
 #    - name: Get Vcenter server - NSXT
-#      community.network.avi_api_session:
+#      vmware.alb.avi_api_session:
 #        avi_credentials: "{{ avi_credentials | default(omit) }}"
 #        api_context: "{{ avi_api_context | default(omit) }}"
 #        http_method: get
@@ -401,7 +401,7 @@
 #      register: vcenter_servers
 #
 #    - name: Delete Vcenter server - NSXT
-#      community.network.avi_api_session:
+#      vmware.alb.avi_api_session:
 #        avi_credentials: "{{ avi_credentials | default(omit) }}"
 #        api_context: "{{ avi_api_context | default(omit) }}"
 #        http_method: "delete"
@@ -417,7 +417,7 @@
 #      ignore_errors: yes
 #
 #    - name: Discover remaining configured networks
-#      community.network.avi_api_session:
+#      vmware.alb.avi_api_session:
 #        avi_credentials: "{{ avi_credentials | default(omit) }}"
 #        api_context: "{{ avi_api_context | default(omit) }}"
 #        http_method: "get"
@@ -426,7 +426,7 @@
 #      ignore_errors: yes
 #
 #    - name: Delete configured networks
-#      community.network.avi_api_session:
+#      vmware.alb.avi_api_session:
 #        avi_credentials: "{{ avi_credentials | default(omit) }}"
 #        api_context: "{{ avi_api_context | default(omit) }}"
 #        http_method: "delete"
@@ -437,7 +437,7 @@
 #      ignore_errors: yes
 #
 #    - name: Delete clouds
-#      community.network.avi_api_session:
+#      vmware.alb.avi_api_session:
 #        avi_credentials: "{{ avi_credentials | default(omit) }}"
 #        api_context: "{{ avi_api_context | default(omit) }}"
 #        http_method: "delete"
@@ -449,7 +449,7 @@
 #      ignore_errors: yes
 #
 #    - name: Delete IPAM and DNS Profile
-#      community.network.avi_api_session:
+#      vmware.alb.avi_api_session:
 #        avi_credentials: "{{ avi_credentials | default(omit) }}"
 #        api_context: "{{ avi_api_context | default(omit) }}"
 #        http_method: "delete"
