@@ -221,7 +221,7 @@ variable "client" {
     disk = 20
     wait_for_guest_net_timeout = 2
     username = "ubuntu"
-    netplan_file_path = "/etc/netplan/50-cloud-init.yaml"
+    net_plan_file = "/etc/netplan/50-cloud-init.yaml"
 //    if_name_main = "ens192"
 //    if_name_second = "ens33"
   }
