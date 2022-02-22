@@ -102,8 +102,8 @@ write_files:
     path: /opt/bootstrap.sh
     permissions: "0755"
   - encoding: base64
-    content: ${network_config}
-    path: ${net_plan_file}
+    content: ${network_config_static}
+    path: /tmp/50-cloud-init.yaml
   - content: |
       network: {config: disabled}
     path: /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg

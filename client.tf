@@ -253,6 +253,8 @@ resource "null_resource" "update_ip_to_client_static" {
 
   provisioner "remote-exec" {
     inline = [
+      "if_secondary_name=$(sudo dmesg | grep eth0 | tail -1 | awk -F' ' '{print $5}' | sed 's/://')",
+      "sudo sed -i -e \"s/if_name_secondary_to_be_replaced/\"$if_secondary_name\"/g\" ${var.client.net_plan_file}",
       "sudo netplan apply"
     ]
   }

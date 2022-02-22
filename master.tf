@@ -174,8 +174,7 @@ resource "null_resource" "update_ip_to_master" {
       "sudo systemctl restart kubelet"
     ] : [
       "if_secondary_name=$(sudo dmesg | grep eth0 | tail -1 | awk -F' ' '{print $5}' | sed 's/://')",
-      "sudo sed -i -e \"s/if_name_secondary_to_be_replaced/\"$if_secondary_name\"/g\" /tmp/50-cloud-init.yaml",
-      "sudo cp /tmp/50-cloud-init.yaml ${var.master.net_plan_file}",
+      "sudo sed -i -e \"s/if_name_secondary_to_be_replaced/\"$if_secondary_name\"/g\" ${var.master.net_plan_file}",
       "sudo netplan apply",
       "sleep 10",
       "sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.old",
