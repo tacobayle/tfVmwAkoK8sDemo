@@ -41,6 +41,23 @@
         vcenter_configuration:
           username: "{{ vsphere_username }}"
           password: "{{ vsphere_password }}"
+          vcenter_url: "{{ vsphere_server }}"
+          privilege: WRITE_ACCESS
+          datacenter: "{{ vcenter_dc }}"
+      tags:
+        - cloud
+      when:
+        - vsphere_username is defined
+        - vsphere_password is defined
+        - vsphere_server is defined
+        - vcenter_dc is defined
+        - vsphere_server | ansible.netcommon.ipaddr
+
+    - name: Defining variable vcenter_configuration
+      set_fact:
+        vcenter_configuration:
+          username: "{{ vsphere_username }}"
+          password: "{{ vsphere_password }}"
           vcenter_url: "{{ lookup('dig', vsphere_server) }}"
           privilege: WRITE_ACCESS
           datacenter: "{{ vcenter_dc }}"
@@ -51,6 +68,7 @@
         - vsphere_password is defined
         - vsphere_server is defined
         - vcenter_dc is defined
+        - not vsphere_server | ansible.netcommon.ipaddr
 
     - name: Configure Avi Cloud
       community.network.avi_cloud:
