@@ -39,7 +39,7 @@ data "template_file" "client_userdata_dhcp" {
   vars = {
     password      = var.static_password == null ? random_string.password.result : var.static_password
 //    pubkey        = chomp(tls_private_key.ssh.public_key_openssh)
-    net_plan_file = var.client.netplan_file_path
+    net_plan_file = var.client.net_plan_file
     hostname = "${var.client.basename}${random_string.id.result}"
     network_config  = base64encode(data.template_file.network_client_dhcp_static[0].rendered)
     network_config_static  = base64encode(data.template_file.network_client_dhcp_static[0].rendered)
@@ -52,7 +52,7 @@ data "template_file" "client_userdata_static" {
   vars = {
     password      = var.static_password == null ? random_string.password.result : var.static_password
     //    pubkey        = chomp(tls_private_key.ssh.public_key_openssh)
-    net_plan_file = var.client.netplan_file_path
+    net_plan_file = var.client.net_plan_file
     hostname = "${var.client.basename}${random_string.id.result}"
     network_config  = base64encode(data.template_file.network_client_static[0].rendered)
   }
