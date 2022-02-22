@@ -88,7 +88,7 @@ clear
 unset TF_VAR_vcenter_network_vip_name ; assign_var_from_json_file "vCenter vCenter vip network" "networks.json" ; TF_VAR_vcenter_network_vip_name=$(cat .var)
 # vip network details
 unset TF_VAR_vcenter_network_vip_cidr ; until [ ! -z "$TF_VAR_vcenter_network_vip_cidr" ] ; do echo -n "enter vip network address cidr (like: 10.206.112.0/22): " ; read -r TF_VAR_vcenter_network_vip_cidr ; done
-unset TF_VAR_vcenter_network_vip_ip4_addresses ; until [ ! -z "$TF_VAR_vcenter_network_vip_ip4_addresses" ] ; do echo -n "enter a free IPs to use in the vip network (like: 10.1.100.200): " ; read -r TF_VAR_vcenter_network_vip_ip4_addresses ; done
+unset TF_VAR_vcenter_network_vip_ip4_address ; until [ ! -z "$TF_VAR_vcenter_network_vip_ip4_address" ] ; do echo -n "enter a free IPs to use in the vip network (like: 10.1.100.200): " ; read -r TF_VAR_vcenter_network_vip_ip4_address ; done
 unset TF_VAR_vcenter_network_vip_ipam_pool ; until [ ! -z "$TF_VAR_vcenter_network_vip_ipam_pool" ] ; do echo -n "enter a range of IPs for vip network separated by hyphen (like: 10.1.100.100 - 10.1.100.199): " ; read -r TF_VAR_vcenter_network_vip_ipam_pool ; done
 clear
 # k8s network

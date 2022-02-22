@@ -80,7 +80,7 @@ variable "vcenter_network_vip_cidr" {
   default = "10.1.100.0/24"
 }
 
-variable "vcenter_network_vip_ip4_addresses" {
+variable "vcenter_network_vip_ip4_address" {
   default = "10.1.100.200"
 }
 
@@ -207,7 +207,7 @@ variable "destroy_env_vm" {
     wait_for_guest_net_timeout = 2
     template_name = "ubuntu-focal-20.04-cloudimg-template"
     username = "ubuntu"
-    if_name_main = "ens192"
+//    if_name_main = "ens192"
     net_plan_file = "/etc/netplan/50-cloud-init.yaml"
   }
 }
@@ -222,8 +222,8 @@ variable "client" {
     wait_for_guest_net_timeout = 2
     username = "ubuntu"
     netplan_file_path = "/etc/netplan/50-cloud-init.yaml"
-    if_name_main = "ens192"
-    if_name_second = "ens33"
+//    if_name_main = "ens192"
+//    if_name_second = "ens33"
   }
 }
 
@@ -254,8 +254,8 @@ variable "workers" {
     basename = "worker-tf-"
     username = "ubuntu"
     cpu = 2
-    if_name_main = "ens192"
-    if_name_second = "ens33"
+//    if_name_main = "ens192"
+//    if_name_second = "ens33"
     memory = 4096
     disk = 20
     net_plan_file = "/etc/netplan/50-cloud-init.yaml"

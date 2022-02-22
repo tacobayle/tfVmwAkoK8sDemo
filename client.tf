@@ -2,12 +2,12 @@ data "template_file" "network_client_static" {
   count = (var.vcenter_network_mgmt_dhcp == false ? 1 : 0)
   template = file("templates/network_client_static.template")
   vars = {
-    if_name_main = var.client.if_name_main
-    if_name_second = var.client.if_name_second
+//    if_name_main = var.client.if_name_main
+//    if_name_second = var.client.if_name_second
     ip4_main = "${split(",", replace(var.vcenter_network_mgmt_ip4_addresses, " ", ""))[1]}/${split("/", var.vcenter_network_mgmt_network_cidr)[1]}"
     gw4 = var.vcenter_network_mgmt_gateway4
     avi_dns_vs = "${split("-", replace(var.vcenter_network_vip_ipam_pool, " ", ""))[0]}"
-    ip4_second = "${split(",", replace(var.vcenter_network_vip_ip4_addresses, " ", ""))[0]}/${split("/", var.vcenter_network_vip_cidr)[1]}"
+    ip4_second = "${split(",", replace(var.vcenter_network_vip_ip4_address, " ", ""))[0]}/${split("/", var.vcenter_network_vip_cidr)[1]}"
   }
 }
 
@@ -15,10 +15,10 @@ data "template_file" "network_client_dhcp" {
   count = (var.vcenter_network_mgmt_dhcp == true ? 1 : 0)
   template = file("templates/network_client_dhcp.template")
   vars = {
-    if_name_main = var.client.if_name_main
-    if_name_second = var.client.if_name_second
+//    if_name_main = var.client.if_name_main
+//    if_name_second = var.client.if_name_second
     avi_dns_vs = "${split("-", replace(var.vcenter_network_vip_ipam_pool, " ", ""))[0]}"
-    ip4_second = "${split(",", replace(var.vcenter_network_vip_ip4_addresses, " ", ""))[0]}/${split("/", var.vcenter_network_vip_cidr)[1]}"
+    ip4_second = "${split(",", replace(var.vcenter_network_vip_ip4_address, " ", ""))[0]}/${split("/", var.vcenter_network_vip_cidr)[1]}"
   }
 }
 
@@ -26,10 +26,10 @@ data "template_file" "network_client_dhcp_static" {
   count = (var.vcenter_network_mgmt_dhcp == true ? 1 : 0)
   template = file("templates/network_client_dhcp_static.template")
   vars = {
-    if_name_main = var.client.if_name_main
-    if_name_second = var.client.if_name_second
+//    if_name_main = var.client.if_name_main
+//    if_name_second = var.client.if_name_second
     avi_dns_vs = "${split("-", replace(var.vcenter_network_vip_ipam_pool, " ", ""))[0]}"
-    ip4_second = "${split(",", replace(var.vcenter_network_vip_ip4_addresses, " ", ""))[0]}/${split("/", var.vcenter_network_vip_cidr)[1]}"
+    ip4_second = "${split(",", replace(var.vcenter_network_vip_ip4_address, " ", ""))[0]}/${split("/", var.vcenter_network_vip_cidr)[1]}"
   }
 }
 
@@ -231,6 +231,9 @@ resource "null_resource" "update_ip_to_client_dhcp" {
 
   provisioner "remote-exec" {
     inline = [
+      "if_secondary_name=$(sudo dmesg | grep eth0 | tail -1 | awk -F' ' '{print $5}' | sed 's/://')",
+      "sudo sed -i -e \"s/if_name_secondary_to_be_replaced/\"$if_secondary_name\"/g\" /tmp/50-cloud-init.yaml",
+      "sudo cp /tmp/50-cloud-init.yaml ${var.client.net_plan_file}",
       "sudo netplan apply"
     ]
   }

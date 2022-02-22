@@ -2,7 +2,6 @@ data "template_file" "destroy_vm_static" {
   count = (var.vcenter_network_mgmt_dhcp == false ? 1 : 0)
   template = file("templates/network_destroy_vm.template")
   vars = {
-    if_name_main = var.destroy_env_vm.if_name_main
     ip4_main = "${split(",", replace(var.vcenter_network_mgmt_ip4_addresses, " ", ""))[2]}/${split("/", var.vcenter_network_mgmt_network_cidr)[1]}"
     gw4 = var.vcenter_network_mgmt_gateway4
     dns = var.vcenter_network_mgmt_network_dns

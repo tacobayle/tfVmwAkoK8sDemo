@@ -62,6 +62,7 @@ git clone https://github.com/tacobayle/tfVmwAkoK8sDemo
 | vcenter_network_mgmt_ipam_pool | Avi IPAM pool to allocate IP for the Avi SE     |    true | "10.206.112.55 - 10.206.112.57"|TF variable variable |
 | vcenter_network_vip_name | vcenter_network_vip_name     |    true | "vxw-dvs-34-virtualwire-120-sid-6120119-wdc-06-vc12-avi-dev116"|TF variable variable |
 | vcenter_network_vip_cidr | vcenter_network_vip_cidr     |    true | "10.1.100.0/24"|TF variable variable |
+| vcenter_network_vip_ip4_address | IP address of the client VM in the VIP network, make sure there is no conflict with vcenter_network_vip_ipam_pool     |    true | "10.1.100.200"|TF variable variable |
 | vcenter_network_vip_ipam_pool | Avi IPAM pool to allocate IP for the Avi SE     |    true | "10.1.100.100 - 10.1.100.199"|TF variable variable |
 | vcenter_network_k8s_name | vcenter_network_k8s_name     |    true | "vxw-dvs-34-virtualwire-116-sid-6120115-wdc-06-vc12-avi-dev112"|TF variable variable |
 | vcenter_network_k8s_cidr | vcenter_network_k8s_cidr     |    true | "100.100.100.0/24"|TF variable variable |

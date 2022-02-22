@@ -2,8 +2,8 @@ data "template_file" "network_workers_static" {
   count = (var.vcenter_network_mgmt_dhcp == false ? 2 : 0)
   template = file("templates/network_workers_static.template")
   vars = {
-    if_name_main = var.workers.if_name_main
-    if_name_second = var.workers.if_name_second
+//    if_name_main = var.workers.if_name_main
+//    if_name_second = var.workers.if_name_second
     ip4_main = "${split(",", replace(var.vcenter_network_mgmt_ip4_addresses, " ", ""))[4 + count.index]}/${split("/", var.vcenter_network_mgmt_network_cidr)[1]}"
     gw4 = var.vcenter_network_mgmt_gateway4
     dns = var.vcenter_network_mgmt_network_dns
@@ -11,22 +11,20 @@ data "template_file" "network_workers_static" {
   }
 }
 
-data "template_file" "network_workers_dhcp" {
-  count = (var.vcenter_network_mgmt_dhcp == true ? 2 : 0)
-  template = file("templates/network_workers_dhcp.template")
-  vars = {
-    if_name_main = var.workers.if_name_main
-    if_name_second = var.workers.if_name_second
-    ip4_second = "${split(",", replace(var.vcenter_network_k8s_ip4_addresses, " ", ""))[1 + count.index]}/${split("/", var.vcenter_network_k8s_cidr)[1]}"
-  }
-}
+//data "template_file" "network_workers_dhcp" {
+//  count = (var.vcenter_network_mgmt_dhcp == true ? 2 : 0)
+//  template = file("templates/network_workers_dhcp.template")
+//  vars = {
+//    if_name_main = var.workers.if_name_main
+//  }
+//}
 
 data "template_file" "network_workers_dhcp_static" {
   count = (var.vcenter_network_mgmt_dhcp == true ? 2 : 0)
   template = file("templates/network_workers_dhcp_static.template")
   vars = {
-    if_name_main = var.workers.if_name_main
-    if_name_second = var.workers.if_name_second
+//    if_name_main = var.workers.if_name_main
+//    if_name_second = var.workers.if_name_second
     ip4_second = "${split(",", replace(var.vcenter_network_k8s_ip4_addresses, " ", ""))[1 + count.index]}/${split("/", var.vcenter_network_k8s_cidr)[1]}"
   }
 }
@@ -41,7 +39,7 @@ data "template_file" "workers_userdata_static" {
     network_config  = base64encode(data.template_file.network_workers_static[count.index].rendered)
     K8s_version = var.K8s_version
     Docker_version = var.Docker_version
-    if_name_k8s = var.workers.if_name_second
+//    if_name_k8s = var.workers.if_name_second
     cni_name = var.K8s_cni_name
     docker_registry_username = var.docker_registry_username
     docker_registry_password = var.docker_registry_password
@@ -55,11 +53,11 @@ data "template_file" "workers_userdata_dhcp" {
     password      = var.static_password == null ? random_string.password.result : var.static_password
     net_plan_file = var.workers.net_plan_file
     hostname = "${var.workers.basename}-${count.index}-${random_string.id.result}"
-    network_config  = base64encode(data.template_file.network_workers_dhcp[count.index].rendered)
+//    network_config  = base64encode(data.template_file.network_workers_dhcp[count.index].rendered)
     K8s_version = var.K8s_version
     Docker_version = var.Docker_version
     network_config_static  = base64encode(data.template_file.network_workers_dhcp_static[count.index].rendered)
-    if_name_k8s = var.workers.if_name_second
+//    if_name_k8s = var.workers.if_name_second
     cni_name = var.K8s_cni_name
     ako_service_type = local.ako_service_type
     docker_registry_username = var.docker_registry_username
@@ -162,19 +160,24 @@ resource "null_resource" "update_ip_to_workers" {
 
   provisioner "remote-exec" {
     inline = var.vcenter_network_mgmt_dhcp == true ? [
+      "if_secondary_name=$(sudo dmesg | grep eth0 | tail -1 | awk -F' ' '{print $5}' | sed 's/://')",
+      "sudo sed -i -e \"s/if_name_secondary_to_be_replaced/\"$if_secondary_name\"/g\" /tmp/50-cloud-init.yaml",
       "sudo cp /tmp/50-cloud-init.yaml ${var.workers.net_plan_file}",
       "sudo netplan apply",
       "sleep 10",
       "sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.old",
-      "ip=$(ip -f inet addr show ${var.workers.if_name_second} | awk '/inet / {print $2}' | awk -F/ '{print $1}')",
+      "ip=$(ip -f inet addr show $if_secondary_name | awk '/inet / {print $2}' | awk -F/ '{print $1}')",
       "sudo sed '$${s/$/ --node-ip '$ip'/}' /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.old | sudo tee /etc/systemd/system/kubelet.service.d/10-kubeadm.conf",
       "sudo systemctl daemon-reload",
       "sudo systemctl restart kubelet"
     ] : [
+      "if_secondary_name=$(sudo dmesg | grep eth0 | tail -1 | awk -F' ' '{print $5}' | sed 's/://')",
+      "sudo sed -i -e \"s/if_name_secondary_to_be_replaced/\"$if_secondary_name\"/g\" /tmp/50-cloud-init.yaml",
+      "sudo cp /tmp/50-cloud-init.yaml ${var.workers.net_plan_file}",
       "sudo netplan apply",
       "sleep 10",
       "sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.old",
-      "ip=$(ip -f inet addr show ${var.workers.if_name_second} | awk '/inet / {print $2}' | awk -F/ '{print $1}')",
+      "ip=$(ip -f inet addr show $if_secondary_name | awk '/inet / {print $2}' | awk -F/ '{print $1}')",
       "sudo sed '$${s/$/ --node-ip '$ip'/}' /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.old | sudo tee /etc/systemd/system/kubelet.service.d/10-kubeadm.conf",
       "sudo systemctl daemon-reload",
       "sudo systemctl restart kubelet"
