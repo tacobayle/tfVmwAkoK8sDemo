@@ -204,7 +204,7 @@ variable "destroy_env_vm" {
     cpu = 2
     memory = 4096
     disk = 20
-    wait_for_guest_net_timeout = 2
+    wait_for_guest_net_timeout = 0
     template_name = "ubuntu-focal-20.04-cloudimg-template"
     username = "ubuntu"
 //    if_name_main = "ens192"
@@ -219,7 +219,7 @@ variable "client" {
     cpu = 2
     memory = 4096
     disk = 20
-    wait_for_guest_net_timeout = 2
+    wait_for_guest_net_timeout = 0
     username = "ubuntu"
     net_plan_file = "/etc/netplan/50-cloud-init.yaml"
 //    if_name_main = "ens192"
