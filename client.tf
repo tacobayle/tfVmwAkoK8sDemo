@@ -89,7 +89,6 @@ resource "vsphere_virtual_machine" "client_static" {
 
   num_cpus = var.client.cpu
   memory = var.client.memory
-  wait_for_guest_net_timeout = var.client.wait_for_guest_net_timeout
   guest_id = "ubuntu64Guest"
 
   disk {
@@ -147,7 +146,6 @@ resource "vsphere_virtual_machine" "client_dhcp" {
 
   num_cpus = var.client.cpu
   memory = var.client.memory
-  wait_for_guest_net_timeout = var.client.wait_for_guest_net_timeout
   guest_id = "ubuntu64Guest"
 
   disk {

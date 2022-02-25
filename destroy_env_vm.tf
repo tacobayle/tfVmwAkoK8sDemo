@@ -132,7 +132,6 @@ resource "vsphere_virtual_machine" "destroy_env_vm" {
 
   num_cpus = var.destroy_env_vm.cpu
   memory = var.destroy_env_vm.memory
-  wait_for_guest_net_timeout = var.destroy_env_vm.wait_for_guest_net_timeout
   guest_id = "ubuntu64Guest"
 
   disk {
