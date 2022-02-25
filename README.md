@@ -52,7 +52,7 @@ git clone https://github.com/tacobayle/tfVmwAkoK8sDemo
 | vcenter_cluster | vcenter_cluster      |    true | wdc-06-vc12c01|TF variable variable |
 | vcenter_datastore | vcenter_datastore      |    true | wdc-06-vc12c01-vsan|TF variable variable |
 | vcenter_folder | vcenter_folder where all the VMs will be stored      |    true | tf_ako_k8s_demo|TF variable variable |
-| vcenter_network_mgmt_name | vcenter_network_mgmt_name      |    true | vxw-dvs-34-virtualwire-3-sid-6120002-wdc-06-vc12-avi-mgmt|TF variable variable |
+| vcenter_network_mgmt_name | vcenter_network_mgmt_name  (port group)    |    true | vxw-dvs-34-virtualwire-3-sid-6120002-wdc-06-vc12-avi-mgmt|TF variable variable |
 | vcenter_network_mgmt_dhcp | Use dhcp for mgmt network?     |    true | true |TF variable variable |
 | vcenter_network_mgmt_ip4_addresses | list of IP addresses separated by comma (if dhcp is disabled) - 6 IPs are required    |    true | "10.206.112.70, 10.206.112.71, 10.206.112.72, 10.206.112.73, 10.206.112.74, 10.206.112.75"|TF variable variable |
 | vcenter_network_mgmt_network_cidr | vcenter_network_mgmt_network_cidr     |    true | "10.206.112.0/22"|TF variable variable |
@@ -60,11 +60,11 @@ git clone https://github.com/tacobayle/tfVmwAkoK8sDemo
 | ntp_servers_ips | ntp_servers_ips to be configured in the Avi Controller     |    true | "10.206.8.130, 10.206.8.131"|TF variable variable |
 | vcenter_network_mgmt_gateway4 | Default gateway of the management network     |    true | "10.206.112.1"|TF variable variable |
 | vcenter_network_mgmt_ipam_pool | Avi IPAM pool to allocate IP for the Avi SE     |    true | "10.206.112.55 - 10.206.112.57"|TF variable variable |
-| vcenter_network_vip_name | vcenter_network_vip_name     |    true | "vxw-dvs-34-virtualwire-120-sid-6120119-wdc-06-vc12-avi-dev116"|TF variable variable |
+| vcenter_network_vip_name | vcenter_network_vip_name (port group)    |    true | "vxw-dvs-34-virtualwire-120-sid-6120119-wdc-06-vc12-avi-dev116"|TF variable variable |
 | vcenter_network_vip_cidr | vcenter_network_vip_cidr     |    true | "10.1.100.0/24"|TF variable variable |
 | vcenter_network_vip_ip4_address | IP address of the client VM in the VIP network, make sure there is no conflict with vcenter_network_vip_ipam_pool     |    true | "10.1.100.200"|TF variable variable |
 | vcenter_network_vip_ipam_pool | Avi IPAM pool to allocate IP for the Avi SE     |    true | "10.1.100.100 - 10.1.100.199"|TF variable variable |
-| vcenter_network_k8s_name | vcenter_network_k8s_name     |    true | "vxw-dvs-34-virtualwire-116-sid-6120115-wdc-06-vc12-avi-dev112"|TF variable variable |
+| vcenter_network_k8s_name | vcenter_network_k8s_name (port group)    |    true | "vxw-dvs-34-virtualwire-116-sid-6120115-wdc-06-vc12-avi-dev112"|TF variable variable |
 | vcenter_network_k8s_cidr | vcenter_network_k8s_cidr     |    true | "100.100.100.0/24"|TF variable variable |
 | vcenter_network_k8s_ip4_addresses | list of IP addresses separated by comma - 3 IPs are required     |    true | "100.100.100.200, 100.100.100.201, 100.100.100.202"|TF variable variable |
 | vcenter_network_k8s_ipam_pool | Avi IPAM pool to allocate IP for the Avi SE     |    true | "100.100.100.100 - 100.100.100.199"|TF variable variable |
