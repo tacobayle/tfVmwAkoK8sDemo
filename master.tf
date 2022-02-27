@@ -2,8 +2,6 @@ data "template_file" "network_master_static" {
   count = (var.vcenter_network_mgmt_dhcp == false ? 1 : 0)
   template = file("templates/network_master_static.template")
   vars = {
-//    if_name_main = var.master.if_name_main
-//    if_name_second = var.master.if_name_second
     ip4_main = "${split(",", replace(var.vcenter_network_mgmt_ip4_addresses, " ", ""))[3]}/${split("/", var.vcenter_network_mgmt_network_cidr)[1]}"
     gw4 = var.vcenter_network_mgmt_gateway4
     dns = var.vcenter_network_mgmt_network_dns
@@ -11,20 +9,10 @@ data "template_file" "network_master_static" {
   }
 }
 
-//data "template_file" "network_master_dhcp" {
-//  count = (var.vcenter_network_mgmt_dhcp == true ? 1 : 0)
-//  template = file("templates/network_master_dhcp.template")
-//  vars = {
-//    if_name_main = var.master.if_name_main
-//  }
-//}
-
 data "template_file" "network_master_dhcp_static" {
   count = (var.vcenter_network_mgmt_dhcp == true ? 1 : 0)
   template = file("templates/network_master_dhcp_static.template")
   vars = {
-//    if_name_main = var.master.if_name_main
-//    if_name_second = var.master.if_name_second
     ip4_second = "${split(",", replace(var.vcenter_network_k8s_ip4_addresses, " ", ""))[0]}/${split("/", var.vcenter_network_k8s_cidr)[1]}"
   }
 }
@@ -40,8 +28,6 @@ data "template_file" "master_userdata_static" {
     K8s_version = var.K8s_version
     Docker_version = var.Docker_version
     K8s_network_pod = var.K8s_network_pod
-//    K8s_cni_url = var.K8s_cni_url
-//    if_name_k8s = var.master.if_name_second
     cni_name = var.K8s_cni_name
     ako_service_type = local.ako_service_type
     docker_registry_username = var.docker_registry_username
@@ -56,13 +42,10 @@ data "template_file" "master_userdata_dhcp" {
     password      = var.static_password == null ? random_string.password.result : var.static_password
     net_plan_file = var.master.net_plan_file
     hostname = "${var.master.basename}${random_string.id.result}"
-//    network_config  = base64encode(data.template_file.network_master_dhcp[count.index].rendered)
     K8s_version = var.K8s_version
     Docker_version = var.Docker_version
     K8s_network_pod = var.K8s_network_pod
-//    K8s_cni_url = var.K8s_cni_url
     network_config_static  = base64encode(data.template_file.network_master_dhcp_static[0].rendered)
-//    if_name_k8s = var.master.if_name_second
     cni_name = var.K8s_cni_name
     ako_service_type = local.ako_service_type
     docker_registry_username = var.docker_registry_username
@@ -80,14 +63,8 @@ resource "vsphere_virtual_machine" "master" {
     network_id = data.vsphere_network.network_mgmt.id
   }
 
-  //  network_interface {
-  //    network_id = data.vsphere_network.network_vip.id
-  //  }
-
-
   num_cpus = var.master.cpu
   memory = var.master.memory
-//  wait_for_guest_net_timeout = var.master.wait_for_guest_net_timeout
   guest_id = "ubuntu64Guest"
 
   disk {

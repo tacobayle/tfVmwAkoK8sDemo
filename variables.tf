@@ -114,7 +114,7 @@ variable "avi_domain" {
 }
 
 variable "K8s_version" {
-  default = "1.21.3-00" # k8s version
+  default = "1.21.3-00"
 }
 
 variable "K8s_cni_name" {
@@ -124,10 +124,6 @@ variable "K8s_cni_name" {
 variable "K8s_network_pod" {
   default = "192.168.0.0/16"
 }
-
-//variable "K8s_cni_url" {
-//  default = "https://github.com/vmware-tanzu/antrea/releases/download/v1.2.3/antrea.yml"
-//}
 
 variable "Docker_version" {
   default = "5:20.10.7~3-0~ubuntu-focal"
@@ -150,22 +146,6 @@ variable "ako_version" {
 variable "ako_service_type" {
   default = "NodePortLocal"
 }
-
-//variable "vcenter_network_mgmt_cidr" {
-//  default = "vxw-dvs-34-virtualwire-3-sid-6120002-wdc-06-vc12-avi-mgmt"
-//}
-//
-
-
-//
-//variable "vcenter_network_vip_cidr" {
-//  default = "vxw-dvs-34-virtualwire-120-sid-6120119-wdc-06-vc12-avi-dev116"
-//}
-
-
-
-
-
 
 #
 # Other Variables
@@ -207,7 +187,6 @@ variable "destroy_env_vm" {
     disk = 20
     template_name = "ubuntu-focal-20.04-cloudimg-template"
     username = "ubuntu"
-//    if_name_main = "ens192"
     net_plan_file = "/etc/netplan/50-cloud-init.yaml"
   }
 }
@@ -221,8 +200,6 @@ variable "client" {
     disk = 20
     username = "ubuntu"
     net_plan_file = "/etc/netplan/50-cloud-init.yaml"
-//    if_name_main = "ens192"
-//    if_name_second = "ens33"
   }
 }
 
@@ -239,8 +216,6 @@ variable "master" {
     basename = "master-tf-"
     username = "ubuntu"
     cpu = 2
-//    if_name_main = "ens192"
-//    if_name_second = "ens33"
     memory = 8192
     disk = 20
     net_plan_file = "/etc/netplan/50-cloud-init.yaml"
@@ -253,217 +228,8 @@ variable "workers" {
     basename = "worker-tf-"
     username = "ubuntu"
     cpu = 2
-//    if_name_main = "ens192"
-//    if_name_second = "ens33"
     memory = 4096
     disk = 20
     net_plan_file = "/etc/netplan/50-cloud-init.yaml"
   }
 }
-
-//variable "worker" {
-//  type = map
-//  default = {
-//    basename = "worker-tf-"
-//    username = "ubuntu"
-//    cpu = 2
-//    if_name = "ens192"
-//    memory = 4096
-//    disk = 20
-//    wait_for_guest_net_routable = "false"
-//    net_plan_file = "/etc/netplan/50-cloud-init.yaml"
-//  }
-//}
-
-//variable "vmw" {
-//  default = {
-//    name = "dc1_vCenter"
-//    dhcp_enabled = "true"
-//    domains = [
-//      {
-//        name = "avi.com"
-//      }
-//    ]
-//    management_network = {
-//      dhcp_enabled = "true"
-//      exclude_discovered_subnets = "true"
-//      vcenter_dvs = "true"
-//    }
-//    vip_network = {
-//      vipIpStartPool = "200"
-//      vipIpEndPool = "209"
-//      seIpStartPool = "70"
-//      seIpEndPool = "89"
-//      type = "V4"
-//      exclude_discovered_subnets = "true"
-//      vcenter_dvs = "true"
-//      dhcp_enabled = "no"
-//    }
-//    default_waf_policy = "System-WAF-Policy"
-//    serviceEngineGroup = [
-//      {
-//        name = "Default-Group"
-//        ha_mode = "HA_MODE_SHARED"
-//        min_scaleout_per_vs = 2
-//        buffer_se = 1
-//      },
-//    ]
-//    virtualservices = {
-//      dns = [
-//        {
-//          name = "app-dns"
-//          services: [
-//            {
-//              port = 53
-//            }
-//          ]
-//        }
-//      ]
-//    }
-//    kubernetes = {
-//      workers = {
-//        count = 2
-//      }
-//      ako = {
-//        deploy = false
-//      }
-//      clusters = [
-//        {
-//          name = "cluster1" # cluster name
-//          netplanApply = true
-//          username = "ubuntu" # default username dor docker and to connect
-//          version = "1.21.3-00" # k8s version
-//          namespaces = [
-//            {
-//              name= "ns1"
-//            },
-//            {
-//              name= "ns2"
-//            },
-//            {
-//              name= "ns3"
-//            },
-//          ]
-//          ako = {
-//            namespace = "avi-system"
-//            version = "1.5.1"
-//            helm = {
-//              url = "https://projects.registry.vmware.com/chartrepo/ako"
-//            }
-//            values = {
-//              AKOSettings = {
-//                disableStaticRouteSync = "false"
-//              }
-//              L7Settings = {
-//                serviceType = "ClusterIP"
-//                shardVSSize = "SMALL"
-//              }
-//            }
-//          }
-//          serviceEngineGroup = {
-//            name = "seg-cluster1"
-//            ha_mode = "HA_MODE_SHARED"
-//            min_scaleout_per_vs = "2"
-//            buffer_se = 1
-//            se_name_prefix = "cluster1"
-//          }
-//          networks = {
-//            pod = "192.168.0.0/16"
-//          }
-//          docker = {
-//            version = "5:20.10.7~3-0~ubuntu-bionic"
-//          }
-//          interface = "ens224" # interface used by k8s
-//          cni = {
-//            url = "https://docs.projectcalico.org/manifests/calico.yaml"
-//            name = "calico" # calico or antrea
-//          }
-//          master = {
-//            cpu = 8
-//            memory = 16384
-//            disk = 80
-//            wait_for_guest_net_routable = "false"
-//            template_name = "ubuntu-bionic-18.04-cloudimg-template"
-//            net_plan_file = "/etc/netplan/50-cloud-init.yaml"
-//          }
-//          worker = {
-//            cpu = 4
-//            memory = 8192
-//            disk = 40
-//            wait_for_guest_net_routable = "false"
-//            template_name = "ubuntu-bionic-18.04-cloudimg-template"
-//            net_plan_file = "/etc/netplan/50-cloud-init.yaml"
-//          }
-//        },
-//        {
-//          name = "cluster2"
-//          netplanApply = true
-//          username = "ubuntu"
-//          version = "1.21.3-00"
-//          namespaces = [
-//            {
-//              name= "ns1"
-//            },
-//            {
-//              name= "ns2"
-//            },
-//            {
-//              name= "ns3"
-//            },
-//          ]
-//          ako = {
-//            namespace = "avi-system"
-//            version = "1.5.1"
-//            helm = {
-//              url = "https://projects.registry.vmware.com/chartrepo/ako"
-//            }
-//            values = {
-//              AKOSettings = {
-//                disableStaticRouteSync = "false"
-//              }
-//              L7Settings = {
-//                serviceType = "NodePortLocal"
-//                shardVSSize = "SMALL"
-//              }
-//            }
-//          }
-//          serviceEngineGroup = {
-//            name = "Default-Group"
-//            ha_mode = "HA_MODE_SHARED"
-//            min_scaleout_per_vs = 2
-//            buffer_se = 1
-//          }
-//          networks = {
-//            pod = "192.168.1.0/16"
-//          }
-//          docker = {
-//            version = "5:20.10.7~3-0~ubuntu-bionic"
-//          }
-//          interface = "ens224"
-//          cni = {
-//            url = "https://github.com/vmware-tanzu/antrea/releases/download/v1.2.3/antrea.yml"
-//            name = "antrea"
-//            enableNPL = true
-//          }
-//          master = {
-//            count = 1
-//            cpu = 8
-//            memory = 16384
-//            disk = 80
-//            wait_for_guest_net_routable = "false"
-//            template_name = "ubuntu-bionic-18.04-cloudimg-template"
-//            net_plan_file = "/etc/netplan/50-cloud-init.yaml"
-//          }
-//          worker = {
-//            cpu = 4
-//            memory = 8192
-//            disk = 40
-//            wait_for_guest_net_routable = "false"
-//            template_name = "ubuntu-bionic-18.04-cloudimg-template"
-//            net_plan_file = "/etc/netplan/50-cloud-init.yaml"
-//          }
-//        }
-//      ]
-//    }
-//  }
-//}

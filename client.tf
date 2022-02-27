@@ -2,8 +2,6 @@ data "template_file" "network_client_static" {
   count = (var.vcenter_network_mgmt_dhcp == false ? 1 : 0)
   template = file("templates/network_client_static.template")
   vars = {
-//    if_name_main = var.client.if_name_main
-//    if_name_second = var.client.if_name_second
     ip4_main = "${split(",", replace(var.vcenter_network_mgmt_ip4_addresses, " ", ""))[1]}/${split("/", var.vcenter_network_mgmt_network_cidr)[1]}"
     gw4 = var.vcenter_network_mgmt_gateway4
     avi_dns_vs = "${split("-", replace(var.vcenter_network_vip_ipam_pool, " ", ""))[0]}"
@@ -15,8 +13,6 @@ data "template_file" "network_client_dhcp" {
   count = (var.vcenter_network_mgmt_dhcp == true ? 1 : 0)
   template = file("templates/network_client_dhcp.template")
   vars = {
-//    if_name_main = var.client.if_name_main
-//    if_name_second = var.client.if_name_second
     avi_dns_vs = "${split("-", replace(var.vcenter_network_vip_ipam_pool, " ", ""))[0]}"
     ip4_second = "${split(",", replace(var.vcenter_network_vip_ip4_address, " ", ""))[0]}/${split("/", var.vcenter_network_vip_cidr)[1]}"
   }
@@ -26,8 +22,6 @@ data "template_file" "network_client_dhcp_static" {
   count = (var.vcenter_network_mgmt_dhcp == true ? 1 : 0)
   template = file("templates/network_client_dhcp_static.template")
   vars = {
-//    if_name_main = var.client.if_name_main
-//    if_name_second = var.client.if_name_second
     avi_dns_vs = "${split("-", replace(var.vcenter_network_vip_ipam_pool, " ", ""))[0]}"
     ip4_second = "${split(",", replace(var.vcenter_network_vip_ip4_address, " ", ""))[0]}/${split("/", var.vcenter_network_vip_cidr)[1]}"
   }
@@ -38,7 +32,6 @@ data "template_file" "client_userdata_dhcp" {
   template = file("${path.module}/userdata/client_dhcp.userdata")
   vars = {
     password      = var.static_password == null ? random_string.password.result : var.static_password
-//    pubkey        = chomp(tls_private_key.ssh.public_key_openssh)
     net_plan_file = var.client.net_plan_file
     hostname = "${var.client.basename}${random_string.id.result}"
     network_config  = base64encode(data.template_file.network_client_dhcp_static[0].rendered)
@@ -51,25 +44,11 @@ data "template_file" "client_userdata_static" {
   template = file("${path.module}/userdata/client_static.userdata")
   vars = {
     password      = var.static_password == null ? random_string.password.result : var.static_password
-    //    pubkey        = chomp(tls_private_key.ssh.public_key_openssh)
     net_plan_file = var.client.net_plan_file
     hostname = "${var.client.basename}${random_string.id.result}"
     network_config  = base64encode(data.template_file.network_client_static[0].rendered)
   }
 }
-
-
-//data "template_file" "client_dhcp_userdata" {
-//  count = (var.vcenter_network_mgmt_dhcp == true ? 1 : 0)
-//  template = file("${path.module}/userdata/client.userdata")
-//  vars = {
-//    password      = var.static_password == null ? random_string.password.result : var.static_password
-////    pubkey        = chomp(tls_private_key.ssh.public_key_openssh)
-//    net_plan_file = var.client.net_plan_file
-//    hostname = "${var.client.basename}${random_string.id.result}"
-//    network_config  = base64encode(data.template_file.client_dhcp[count.index].rendered)
-//  }
-//}
 
 resource "vsphere_virtual_machine" "client_static" {
   count = (var.vcenter_network_mgmt_dhcp == false ? 1 : 0)
@@ -81,11 +60,6 @@ resource "vsphere_virtual_machine" "client_static" {
   network_interface {
                       network_id = data.vsphere_network.network_mgmt.id
   }
-
-//  network_interface {
-//    network_id = data.vsphere_network.network_vip.id
-//  }
-
 
   num_cpus = var.client.cpu
   memory = var.client.memory
@@ -138,11 +112,6 @@ resource "vsphere_virtual_machine" "client_dhcp" {
   network_interface {
     network_id = data.vsphere_network.network_mgmt.id
   }
-
-//  network_interface {
-//    network_id = data.vsphere_network.network_vip.id
-//  }
-
 
   num_cpus = var.client.cpu
   memory = var.client.memory

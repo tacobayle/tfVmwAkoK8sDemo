@@ -2,8 +2,6 @@ data "template_file" "network_workers_static" {
   count = (var.vcenter_network_mgmt_dhcp == false ? 2 : 0)
   template = file("templates/network_workers_static.template")
   vars = {
-//    if_name_main = var.workers.if_name_main
-//    if_name_second = var.workers.if_name_second
     ip4_main = "${split(",", replace(var.vcenter_network_mgmt_ip4_addresses, " ", ""))[4 + count.index]}/${split("/", var.vcenter_network_mgmt_network_cidr)[1]}"
     gw4 = var.vcenter_network_mgmt_gateway4
     dns = var.vcenter_network_mgmt_network_dns
@@ -11,20 +9,10 @@ data "template_file" "network_workers_static" {
   }
 }
 
-//data "template_file" "network_workers_dhcp" {
-//  count = (var.vcenter_network_mgmt_dhcp == true ? 2 : 0)
-//  template = file("templates/network_workers_dhcp.template")
-//  vars = {
-//    if_name_main = var.workers.if_name_main
-//  }
-//}
-
 data "template_file" "network_workers_dhcp_static" {
   count = (var.vcenter_network_mgmt_dhcp == true ? 2 : 0)
   template = file("templates/network_workers_dhcp_static.template")
   vars = {
-//    if_name_main = var.workers.if_name_main
-//    if_name_second = var.workers.if_name_second
     ip4_second = "${split(",", replace(var.vcenter_network_k8s_ip4_addresses, " ", ""))[1 + count.index]}/${split("/", var.vcenter_network_k8s_cidr)[1]}"
   }
 }
@@ -39,7 +27,6 @@ data "template_file" "workers_userdata_static" {
     network_config  = base64encode(data.template_file.network_workers_static[count.index].rendered)
     K8s_version = var.K8s_version
     Docker_version = var.Docker_version
-//    if_name_k8s = var.workers.if_name_second
     cni_name = var.K8s_cni_name
     docker_registry_username = var.docker_registry_username
     docker_registry_password = var.docker_registry_password
@@ -53,11 +40,9 @@ data "template_file" "workers_userdata_dhcp" {
     password      = var.static_password == null ? random_string.password.result : var.static_password
     net_plan_file = var.workers.net_plan_file
     hostname = "${var.workers.basename}-${count.index}-${random_string.id.result}"
-//    network_config  = base64encode(data.template_file.network_workers_dhcp[count.index].rendered)
     K8s_version = var.K8s_version
     Docker_version = var.Docker_version
     network_config_static  = base64encode(data.template_file.network_workers_dhcp_static[count.index].rendered)
-//    if_name_k8s = var.workers.if_name_second
     cni_name = var.K8s_cni_name
     ako_service_type = local.ako_service_type
     docker_registry_username = var.docker_registry_username
@@ -76,14 +61,8 @@ resource "vsphere_virtual_machine" "workers" {
     network_id = data.vsphere_network.network_mgmt.id
   }
 
-  //  network_interface {
-  //    network_id = data.vsphere_network.network_vip.id
-  //  }
-
-
   num_cpus = var.workers.cpu
   memory = var.workers.memory
-//  wait_for_guest_net_timeout = var.workers.wait_for_guest_net_timeout
   guest_id = "ubuntu64Guest"
 
   disk {

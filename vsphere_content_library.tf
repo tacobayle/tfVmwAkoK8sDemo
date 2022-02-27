@@ -5,12 +5,6 @@ resource "null_resource" "download_ubuntu_focal" {
   }
 }
 
-//resource "null_resource" "download_ubuntu_bionic" {
-//  provisioner "local-exec" {
-//    command = "curl -s -o /tmp/$(basename ${var.content_library.source_url_ubuntu_bionic}) ${var.content_library.source_url_ubuntu_bionic}"
-//  }
-//}
-
 resource "null_resource" "download_avi" {
   provisioner "local-exec" {
     command = "wget -q -O /tmp/controller_tf_ako_demo.ova \"${var.avi_controller_url}\""
@@ -28,13 +22,6 @@ resource "vsphere_content_library_item" "file_ubuntu_focal" {
   library_id  = vsphere_content_library.library.id
   file_url = "/tmp/${basename(var.content_library.source_url_ubuntu_focal)}"
 }
-
-//resource "vsphere_content_library_item" "file_ubuntu_bionic" {
-//  depends_on = [null_resource.download_ubuntu_bionic]
-//  name        = basename(var.content_library.source_url_ubuntu_bionic)
-//  library_id  = vsphere_content_library.library.id
-//  file_url = "/tmp/${basename(var.content_library.source_url_ubuntu_bionic)}"
-//}
 
 resource "vsphere_content_library_item" "file_avi" {
   depends_on = [null_resource.download_avi]

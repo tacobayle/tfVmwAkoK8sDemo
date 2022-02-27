@@ -1,25 +1,5 @@
 # Outputs for Terraform
 
-//output "master_K8s_IPs" {
-//  value = jsonencode(vsphere_virtual_machine.master.*.default_ip_address)
-//}
-//
-//output "workers_K8s_IPs" {
-//  value = jsonencode(vsphere_virtual_machine.worker.*.default_ip_address)
-//}
-//
-////output "destroy_env_vm_VM" {
-////  value = vsphere_virtual_machine.destroy_env_vm.default_ip_address
-////}
-//
-//output "client_VM_IP" {
-//  value = vsphere_virtual_machine.client.default_ip_address
-//}
-//
-//output "Avi_controllers" {
-//  value = vsphere_virtual_machine.controller[0].default_ip_address
-//}
-
 output "Avi_login" {
   value = "admin"
 }
@@ -73,18 +53,3 @@ output "ssh_connect_to_worker1_VM" {
 output "ssh_connect_to_worker2_VM" {
   value = var.vcenter_network_mgmt_dhcp == true ? "ssh -i ~/.ssh/${var.ssh_key.private_key_basename}-${random_string.id.result}.pem -o StrictHostKeyChecking=no ubuntu@${vsphere_virtual_machine.workers[1].default_ip_address}" : "ssh -i ~/.ssh/${var.ssh_key.private_key_basename}-${random_string.id.result}.pem -o StrictHostKeyChecking=no ubuntu@${split(",", replace(var.vcenter_network_mgmt_ip4_addresses, " ", ""))[5]}"
 }
-
-
-
-//
-//output "ssh_connect_to_K8s_cluster1_master_node" {
-//  value = "ssh -i ~/.ssh/${var.ssh_key.private_key_basename}-${var.vcenter.folder}.pem -o StrictHostKeyChecking=no ubuntu@${vsphere_virtual_machine.master.default_ip_address}"
-//}
-//
-//output "ssh_connect_to_K8s_cluster2_master_node" {
-//  value = "ssh -i ~/.ssh/${var.ssh_key.private_key_basename}-${var.vcenter.folder}.pem -o StrictHostKeyChecking=no ubuntu@${vsphere_virtual_machine.master[1].default_ip_address}"
-//}
-//
-//output "ssh_connect_to_any_vm" {
-//  value = "ssh -i ~/.ssh/${var.ssh_key.private_key_basename}-${var.vcenter.folder}.pem -o StrictHostKeyChecking=no ubuntu@<VM_IP>"
-//}

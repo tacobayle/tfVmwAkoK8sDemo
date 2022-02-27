@@ -46,80 +46,6 @@ data "template_file" "destroy_env_vm_userdata_dhcp" {
   }
 }
 
-//resource "vsphere_virtual_machine" "destroy_env_vm_static" {
-//  count = (var.vcenter_network_mgmt_dhcp == false ? 1 : 0)
-//  name             = "${var.destroy_env_vm.name}${random_string.id.result}"
-//  datastore_id     = data.vsphere_datastore.datastore.id
-//  resource_pool_id = data.vsphere_resource_pool.pool.id
-//  folder           = vsphere_folder.folder.path
-//  network_interface {
-//                      network_id = data.vsphere_network.network_mgmt.id
-//  }
-//
-//  num_cpus = var.destroy_env_vm.cpu
-//  memory = var.destroy_env_vm.memory
-//  wait_for_guest_net_timeout = var.destroy_env_vm.wait_for_guest_net_timeout
-//  guest_id = "ubuntu64Guest"
-//
-//  disk {
-//    size             = var.destroy_env_vm.disk
-//    label            = "${var.destroy_env_vm.name}.vmdk"
-//    thin_provisioned = true
-//  }
-//
-//  cdrom {
-//    client_device = true
-//  }
-//
-//  clone {
-//    template_uuid = vsphere_content_library_item.file_ubuntu_focal.id
-//  }
-//
-//  vapp {
-//    properties = {
-//     hostname    = "${var.destroy_env_vm.name}${random_string.id.result}"
-//     public-keys = chomp(tls_private_key.ssh.public_key_openssh)
-//     user-data   = base64encode(data.template_file.destroy_env_vm_userdata_static[0].rendered)
-//   }
-// }
-//
-//  connection {
-//   host        = split(",", replace(var.vcenter_network_mgmt_ip4_addresses, " ", ""))[2]
-//   type        = "ssh"
-//   agent       = false
-//   user        = var.destroy_env_vm.username
-//   private_key = tls_private_key.ssh.private_key_pem
-//  }
-//
-//  provisioner "remote-exec" {
-//   inline      = [
-//     "while [ ! -f /tmp/cloudInitDone.log ]; do sleep 1; done"
-//   ]
-//  }
-//
-//  provisioner "file" {
-//    source      = "~/.ssh/${var.ssh_key.private_key_basename}-${random_string.id.result}.pem"
-//    destination = "~/.ssh/${var.ssh_key.private_key_basename}-${random_string.id.result}.pem"
-//  }
-//
-//  provisioner "file" {
-//    source      = "bash/destroyAvi.sh"
-//    destination = "~/destroyAvi.sh"
-//  }
-//
-//  provisioner "remote-exec" {
-//    inline = [
-//      "chmod 600 ~/.ssh/${var.ssh_key.private_key_basename}-${random_string.id.result}.pem"
-//    ]
-//  }
-//
-//  provisioner "remote-exec" {
-//    inline = [
-//      "chmod u+x ~/destroyAvi.sh"
-//    ]
-//  }
-//}
-
 resource "vsphere_virtual_machine" "destroy_env_vm" {
   count = 1
   name             = "${var.destroy_env_vm.name}${random_string.id.result}"
@@ -192,13 +118,6 @@ resource "vsphere_virtual_machine" "destroy_env_vm" {
     ]
   }
 }
-
-//resource "null_resource" "clear_ssh_key_locally_static_destroy_env_vm" {
-//  count = (var.vcenter_network_mgmt_dhcp == false ? 1 : 0)
-//  provisioner "local-exec" {
-//    command = "ssh-keygen -f \"/home/ubuntu/.ssh/known_hosts\" -R \"${split(",", replace(var.vcenter_network_mgmt_ip4_addresses, " ", ""))[2]}\" || true"
-//  }
-//}
 
 resource "null_resource" "clear_ssh_key_locally_destroy_env_vm" {
   count = 1
