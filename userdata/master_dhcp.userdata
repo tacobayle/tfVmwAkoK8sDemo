@@ -120,7 +120,7 @@ write_files:
         fi
         if [ "$cni" == "flannel" ] ; then
           run_cmd 'wget -O /tmp/flannel.yml https://github.com/coreos/flannel/raw/master/Documentation/kube-flannel.yml; test $(ls -l /tmp/flannel.yml | awk '"'"'{print $5}'"'"') -gt 0'
-          for image in $(cat /tmp/flannel.yml | grep 'image: ' | awk -F 'image: ' '{print $2}'); do image_to_search=$(echo $image | awk -F':' '{print $1}') ; run_cmd "docker pull $image; docker image ls | grep $image_to_search" ; done
+          for image in $(cat /tmp/flannel.yml | grep -vE '^\s*(#)' | grep 'image: ' | awk -F 'image: ' '{print $2}'); do image_to_search=$(echo $image | awk -F':' '{print $1}') ; run_cmd "docker pull $image; docker image ls | grep $image_to_search" ; done
           run_cmd 'kubectl apply -f /tmp/flannel.yml'
         fi
       fi

@@ -1,8 +1,9 @@
-# Tests
+# Tests (v1.64)
 
 ## passed
 ### dhcp
 - vcenter_network_mgmt_dhcp: true, avi_version: 21.1.3, cni: calico, ako_service_type: ClusterIP
+- vcenter_network_mgmt_dhcp: true, avi_version: 21.1.3, cni: flannel, ako_service_type: ClusterIP
 
 
 
@@ -12,8 +13,7 @@
 
 - vcenter_network_mgmt_dhcp: true, avi_version: 21.1.3, cni: antrea, ako_service_type: NodePortLocal
 - vcenter_network_mgmt_dhcp: true, avi_version: 21.1.3, cni: antrea, ako_service_type: ClusterIP
-- vcenter_network_mgmt_dhcp: true, avi_version: 21.1.3, cni: calico, ako_service_type: ClusterIP
-- vcenter_network_mgmt_dhcp: true, avi_version: 21.1.3, cni: flannel, ako_service_type: ClusterIP
+
 
 ### static
 
