@@ -44,6 +44,10 @@ variable "vcenter_network_mgmt_name" {
   default = "vxw-dvs-34-virtualwire-3-sid-6120002-wdc-06-vc12-avi-mgmt"
 }
 
+variable "vcenter_network_mgmt_network_cidr" {
+  default = "10.206.112.0/22"
+}
+
 variable "vcenter_network_mgmt_dhcp" {
   default = true
 }
@@ -53,8 +57,14 @@ variable "vcenter_network_mgmt_ip4_addresses" {
   description = "used only if vcenter_network_mgmt_dhcp is false"
 }
 
-variable "vcenter_network_mgmt_network_cidr" {
-  default = "10.206.112.0/22"
+variable "vcenter_network_mgmt_ipam_pool" {
+  default = "10.206.112.55 - 10.206.112.57"
+  description = "used only if vcenter_network_mgmt_dhcp is false"
+}
+
+variable "vcenter_network_mgmt_gateway4" {
+  default = "10.206.112.1"
+  description = "used only if vcenter_network_mgmt_dhcp is false"
 }
 
 variable "vcenter_network_mgmt_network_dns" {
@@ -63,14 +73,6 @@ variable "vcenter_network_mgmt_network_dns" {
 
 variable "ntp_servers_ips" {
   default = "10.206.8.130, 10.206.8.131"
-}
-
-variable "vcenter_network_mgmt_gateway4" {
-  default = "10.206.112.1"
-}
-
-variable "vcenter_network_mgmt_ipam_pool" {
-  default = "10.206.112.55 - 10.206.112.57"
 }
 
 variable "vcenter_network_vip_name" {
@@ -83,6 +85,7 @@ variable "vcenter_network_vip_cidr" {
 
 variable "vcenter_network_vip_ip4_address" {
   default = "10.1.100.200"
+  description = "IP address of the client VM in the VIP network"
 }
 
 variable "vcenter_network_vip_ipam_pool" {
@@ -118,7 +121,7 @@ variable "K8s_version" {
 }
 
 variable "K8s_cni_name" {
-  default = "flannel"
+  default = "calico"
 }
 
 variable "K8s_network_pod" {

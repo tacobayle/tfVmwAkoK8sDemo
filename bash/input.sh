@@ -76,11 +76,11 @@ unset TF_VAR_vcenter_network_mgmt_name ; assign_var_from_json_file "vCenter mana
 # management network dhcp
 assign_var_boolean "dhcp for management network" "dhcp" "booleans.json"
 if [[  $(jq -r .dhcp booleans.json) == false ]] ; then
-  unset TF_VAR_vcenter_network_mgmt_network_cidr ; until [ ! -z "$TF_VAR_vcenter_network_mgmt_network_cidr" ] ; do echo -n "enter management network address cidr (like: 10.206.112.0/22): " ;  read -r TF_VAR_vcenter_network_mgmt_network_cidr ; done
   unset TF_VAR_vcenter_network_mgmt_ip4_addresses ; until [ ! -z "$TF_VAR_vcenter_network_mgmt_ip4_addresses" ] ; do echo -n "enter 6 free IPs separated by commas to use in the management network (like: 10.206.112.70, 10.206.112.71, 10.206.112.72, 10.206.112.73, 10.206.112.74, 10.206.112.75): " ; read -r TF_VAR_vcenter_network_mgmt_ip4_addresses ; done
-  unset TF_VAR_vcenter_network_mgmt_gateway4 ; until [ ! -z "$TF_VAR_vcenter_network_mgmt_gateway4" ] ; do echo -n "enter IP of the default gateway (like: 10.206.112.1): " ; read -r TF_VAR_vcenter_network_mgmt_gateway4 ; done
   unset TF_VAR_vcenter_network_mgmt_ipam_pool ; until [ ! -z "$TF_VAR_vcenter_network_mgmt_ipam_pool" ] ; do echo -n "enter a range of at least two IPs for management network separated by hyphen (like: 10.206.112.55 - 10.206.112.57): " ; read -r TF_VAR_vcenter_network_mgmt_ipam_pool ; done
+  unset TF_VAR_vcenter_network_mgmt_gateway4 ; until [ ! -z "$TF_VAR_vcenter_network_mgmt_gateway4" ] ; do echo -n "enter IP of the default gateway (like: 10.206.112.1): " ; read -r TF_VAR_vcenter_network_mgmt_gateway4 ; done
 fi
+unset TF_VAR_vcenter_network_mgmt_network_cidr ; until [ ! -z "$TF_VAR_vcenter_network_mgmt_network_cidr" ] ; do echo -n "enter management network address cidr (like: 10.206.112.0/22): " ;  read -r TF_VAR_vcenter_network_mgmt_network_cidr ; done
 unset TF_VAR_vcenter_network_mgmt_network_dns ; echo -n "enter DNS IPs separated by commas (like: 10.206.8.130, 10.206.8.131) - type enter to ignore: " ; read -r TF_VAR_vcenter_network_mgmt_network_dns
 unset TF_VAR_ntp_servers_ips ; echo -n "enter NTP IPs separated by commas (like: 10.206.8.130, 10.206.8.131) - type enter to ignore: " ; read -r TF_VAR_ntp_servers_ips
 clear
