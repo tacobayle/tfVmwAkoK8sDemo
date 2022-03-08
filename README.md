@@ -5,7 +5,7 @@
 This repo spin up a full Avi environment in vCenter with one K8s clusters in order to demonstrate AKO.
 
 - K8s cluster can be configured with Antrea, Calico or Flannel as a CNI
-- if CNI is antrea, AKO can rely on LocalNodePort or ClusterIP - if CNI is not antrea, AKO will default to ClusterIP
+- if CNI is antrea, AKO can rely on NodePortLocal or ClusterIP - if CNI is not antrea, AKO will default to ClusterIP
 - For the management network, each VM is using either IP DHCP allocation or static IP address
 - For the management network, SE are using either IP DHCP allocation or Avi IPAM  
 - For the K8s network, master and workers VMs are using static IP addresses and SE(s) rely on Avi IPAM
@@ -18,7 +18,7 @@ This repo spin up a full Avi environment in vCenter with one K8s clusters in ord
 
 ## Prerequisites:
 
-An orchestrator VM (connected to the mgmt network) which has terraform and govc installed:
+An orchestrator VM which has terraform and govc installed:
 
 - terraform:
   - version tested:
