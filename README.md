@@ -91,19 +91,20 @@ git clone https://github.com/tacobayle/tfVmwAkoK8sDemo
 
 ## Use terraform apply to:
 
-- Create a new folder within vCenter
-- Create an admin (destroy_env_vm) VM within the vCenter folder attached to management network
-- Create a client VM within the vCenter folder attached to management network and the vip network
-- Create an Avi Controller VM within the vCenter folder attached to management network
-- Create/Configure 2 a K8s cluster:
+- Create a new folder in vCenter
+- Create an admin (destroy_env_vm) VM (within the vCenter folder) attached to management network
+- Create a client VM (within the vCenter folder) attached to management network and to the vip network
+- Create an Avi Controller VM (within the vCenter) folder attached to management network
+- Create/Configure a K8s cluster:
   - master and two worker nodes are attached to management network and k8s network
   - 1 master node per cluster
   - 2 workers nodes per cluster
 - Configure Avi Controller:
   - Bootstrap Avi Controller (Password, NTP, DNS)
+  - IPAM and DNS profiles  
   - vCenter cloud configuration
   - Service Engine Groups
-  - DNS VS is used in order to demonstrate FQDN registration reachable outside k8s cluster
+  - DNS VS (to demonstrate FQDN registration reachable outside k8s cluster)
 
 ## Run terraform:
 
