@@ -228,7 +228,7 @@ variable "master" {
 variable "workers" {
   type = map
   default = {
-    basename = "worker-tf-"
+    basename = "worker-tf"
     username = "ubuntu"
     cpu = 2
     memory = 4096
