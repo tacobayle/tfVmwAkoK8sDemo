@@ -5,10 +5,11 @@
 This repo spin up a full Avi environment in vCenter with one K8s clusters in order to demonstrate AKO.
 
 - K8s cluster can be configured with Antrea, Calico or Flannel as a CNI
-- if CNI is antrea, AKO can rely on LocalNodePort or ClusterIP otherwise AKO will default to ClusterIP
-- For the management network, every VM is using either IP DHCP allocation or static IP address
-- For the K8s network, master and workers VMs are using static IP addresses and SE(s) will rely on Avi IPAM
-- For the vip network, client VM is using static IP address and SE(s) will rely on Avi IPAM.
+- if CNI is antrea, AKO can rely on LocalNodePort or ClusterIP - if CNI is not antrea, AKO will default to ClusterIP
+- For the management network, each VM is using either IP DHCP allocation or static IP address
+- For the management network, SE are using either IP DHCP allocation or Avi IPAM  
+- For the K8s network, master and workers VMs are using static IP addresses and SE(s) rely on Avi IPAM
+- For the vip network, client VM is using static IP address and SE(s) rely on Avi IPAM.
 
 ## Network diagram
 
@@ -17,21 +18,34 @@ This repo spin up a full Avi environment in vCenter with one K8s clusters in ord
 
 ## Prerequisites:
 
-A VM which has terraform and govc installed:
+An orchestrator VM (connected to the mgmt network) which has terraform and govc installed:
 
-```shellTerraform v1.0.6
-on linux_amd64
-+ provider registry.terraform.io/hashicorp/local v2.1.0
-+ provider registry.terraform.io/hashicorp/null v3.1.0
-+ provider registry.terraform.io/hashicorp/random v3.1.0
-+ provider registry.terraform.io/hashicorp/template v2.2.0
-+ provider registry.terraform.io/hashicorp/tls v3.1.0
-+ provider registry.terraform.io/hashicorp/vsphere v2.0.2
-```
+- terraform:
+  - version tested:
+  ```shell
+  Terraform v1.0.6
+  on linux_amd64
+  + provider registry.terraform.io/hashicorp/local v2.1.0
+  + provider registry.terraform.io/hashicorp/null v3.1.0
+  + provider registry.terraform.io/hashicorp/random v3.1.0
+  + provider registry.terraform.io/hashicorp/template v2.2.0
+  + provider registry.terraform.io/hashicorp/tls v3.1.0
+  + provider registry.terraform.io/hashicorp/vsphere v2.0.2
+  ```
+  - Installation doc: https://learn.hashicorp.com/tutorials/terraform/install-cli
 
-```
-https://github.com/vmware/govmomi/tree/master/govc
-```
+- govc:
+  - version tested:
+  ```shell
+  govc v0.24.0
+   ```
+  - Installation doc: https://github.com/vmware/govmomi/tree/master/govc
+
+- Avi:
+  - version tested:
+  ```shell
+  21.1.3
+   ```
 
 ## clone this repo:
 
