@@ -186,7 +186,7 @@ $(terraform output -json | jq -r .Destroy_command_avi_config_only.value) ; terra
   - this triggers a new VS (parent VS) in the Avi controller
   - you can check this new application by connecting/sshing to your client_demo VM and doing something like:
     ```
-    curl ingress.avi.com
+    curl ingress.cluster1.avi.com
     ```
 - Update ingress (non HTTPS) to HTTPS using a cert already configured in the Avi controller
   - Apply a host CRD rule:
@@ -200,7 +200,7 @@ $(terraform output -json | jq -r .Destroy_command_avi_config_only.value) ; terra
   - this triggers a new VS (child VS) in the Avi controller
   - you can check this new application by connecting/sshing to your client_demo VM and doing something like:
     ```
-    curl -k https://ingress.avi.com
+    curl -k https://ingress.cluster1.avi.com
     ```
 - ingress (HTTPS using an HTTPS certificate already configured in K8s cluster)
   - Create an ingress:
@@ -214,7 +214,7 @@ $(terraform output -json | jq -r .Destroy_command_avi_config_only.value) ; terra
   - this triggers a new VS (child VS) in the Avi controller
   - you can check this new application by connecting/sshing to your client_demo VM and doing something like:
     ```
-    curl -k https://secure-ingress.avi.com
+    curl -k https://secure-ingress.cluster1.avi.com
     ```
 - Attach a WAF policy to the secure ingress previously created:
   - Apply a host CRD rule:
