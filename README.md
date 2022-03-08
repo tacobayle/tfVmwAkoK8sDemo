@@ -12,7 +12,7 @@ This repo spin up a full Avi environment in vCenter with one K8s clusters in ord
 
 ## Network diagram
 
-![Alt text](img/tfVmwAkoK8sDemo.png?raw=true "Title")
+![Alt text](img/tfVmwAkoK8sDemo.png?raw=true "Network Topology")
 
 
 ## Prerequisites:
@@ -144,9 +144,6 @@ $(terraform output -json | jq -r .Destroy_command_avi_config_only.value) ; terra
     ```
     k get svc
     ```  
-  - this triggers a new VS in the Avi controller
-
-- K8s deployment:
   - Create a K8s deployment:
     ```
     k apply -f deployment.yml
@@ -154,9 +151,14 @@ $(terraform output -json | jq -r .Destroy_command_avi_config_only.value) ; terra
   - Verify your K8s deployment:
     ```
     k get deployment
-    ```
+    ```    
+  - this triggers a new VS in the Avi controller:
+
+![Alt text](img/img_1.png?raw=true "L4 LB")
+
   - you can check this new application by connecting/sshing to your client_demo VM and doing something like:
     ```shell
+    ping web1.default.avi.com
     curl web1.default.avi.com
     ```
     
@@ -166,6 +168,9 @@ $(terraform output -json | jq -r .Destroy_command_avi_config_only.value) ; terra
     k scale deployment web-front1 --replicas=6
     ```
   - this triggers the pool to be scaled automatically for your Avi VS
+
+![Alt text](img/img_2.png?raw=true "Scale your deployment")
+
 - ingress (non HTTPS)
   - Create a K8s service (type ClusterIP):
     ```
@@ -184,8 +189,11 @@ $(terraform output -json | jq -r .Destroy_command_avi_config_only.value) ; terra
     k get ingress
     ```
   - this triggers a new VS (parent VS) in the Avi controller
+    ![Alt text](img/non-secure-ingress.png?raw=true "Create a non secure ingress")
+
   - you can check this new application by connecting/sshing to your client_demo VM and doing something like:
     ```
+    ping ingress.cluster1.avi.com
     curl ingress.cluster1.avi.com
     ```
 - Update ingress (non HTTPS) to HTTPS using a cert already configured in the Avi controller
@@ -197,9 +205,12 @@ $(terraform output -json | jq -r .Destroy_command_avi_config_only.value) ; terra
     ```shell
     k get HostRule avi-crd-hostrule-tls-cert -o json | jq .status.status
     ```
-  - this triggers a new VS (child VS) in the Avi controller
+  - this triggers a new VS (child VS) in the Avi controller:
+    ![Alt text](img/upgrade-non-secure-ingress.png?raw=true "Update your non secure ingress to secure ingress")
+    
   - you can check this new application by connecting/sshing to your client_demo VM and doing something like:
     ```
+    ping ingress.cluster1.avi.com
     curl -k https://ingress.cluster1.avi.com
     ```
 - ingress (HTTPS using an HTTPS certificate already configured in K8s cluster)
@@ -212,8 +223,10 @@ $(terraform output -json | jq -r .Destroy_command_avi_config_only.value) ; terra
     k get ingress
     ```
   - this triggers a new VS (child VS) in the Avi controller
+    ![Alt text](img/secure-ingress.png?raw=true "Create a secure ingress")
   - you can check this new application by connecting/sshing to your client_demo VM and doing something like:
     ```
+    ping secure-ingress.cluster1.avi.com
     curl -k https://secure-ingress.cluster1.avi.com
     ```
 - Attach a WAF policy to the secure ingress previously created:
@@ -225,4 +238,5 @@ $(terraform output -json | jq -r .Destroy_command_avi_config_only.value) ; terra
     ```shell
     k get HostRule  avi-crd-hostrule-waf -o json | jq .status.status
     ```  
-  - this triggers a WAF policy which will be attached to the child VS in the Avi controller
+  - this triggers a WAF policy which will be attached to the child VS in the Avi controller:
+    ![Alt text](img/waf-secure-ingress.png?raw=true "Add WAF policy to your secure ingress")
