@@ -132,12 +132,7 @@ $(terraform output -json | jq -r .Destroy_command_avi_config_only.value) ; terra
   - be patient when you try to test the app from the client VM: the DNS registration takes a bit of time
   - prior to deploying the ako on each single cluster, always make sure of the status (Ready) of the k8s clusters by using such command below:
   ```
-  ubuntu@cluster1-master:~$ k get nodes
-  NAME                STATUS   ROLES                  AGE     VERSION
-  cluster1-master     Ready    control-plane,master   6d21h   v1.21.3
-  cluster1-worker-1   Ready    <none>                 6d21h   v1.21.3
-  cluster1-worker-2   Ready    <none>                 6d21h   v1.21.3
-  ubuntu@cluster1-master:~$
+  k get nodes -o wide
   ```
 - connect to the master node using ssh (username and password are part of the terraform outputs)
 - AKO installation (this can be done prior or during the demo)
