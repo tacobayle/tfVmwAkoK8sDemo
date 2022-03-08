@@ -153,8 +153,7 @@ $(terraform output -json | jq -r .Destroy_command_avi_config_only.value) ; terra
     k get deployment
     ```    
   - this triggers a new VS in the Avi controller:
-
-![Alt text](img/img_1.png?raw=true "L4 LB")
+![Alt text](img/l4.png?raw=true "L4 LB")
 
   - you can check this new application by connecting/sshing to your client_demo VM and doing something like:
     ```shell
@@ -168,8 +167,7 @@ $(terraform output -json | jq -r .Destroy_command_avi_config_only.value) ; terra
     k scale deployment web-front1 --replicas=6
     ```
   - this triggers the pool to be scaled automatically for your Avi VS
-
-![Alt text](img/img_2.png?raw=true "Scale your deployment")
+![Alt text](img/scale.png?raw=true "Scale your deployment")
 
 - ingress (non HTTPS)
   - Create a K8s service (type ClusterIP):
