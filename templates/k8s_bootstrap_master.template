@@ -33,25 +33,25 @@ run_cmd "docker pull tacobayle/busybox-v1; docker image ls | grep tacobayle/busy
 cni=${cni_name}
 ako_service_type=${ako_service_type}
 if [ "$cni" == "antrea" ] ; then
-if [ "$ako_service_type" == "NodePortLocal" ] ; then
-  run_cmd 'wget -O /tmp/antrea.yml.without_nodeportlocal https://github.com/vmware-tanzu/antrea/releases/download/v1.2.3/antrea.yml; ls /tmp/antrea.yml.without_nodeportlocal'
-  cp /tmp/antrea.yml.without_nodeportlocal /tmp/antrea.yml
-  sed -i -e "s/    #  NodePortLocal: false/      NodePortLocal: true/g" /tmp/antrea.yml
+    if [ "$ako_service_type" == "NodePortLocal" ] ; then
+      run_cmd 'wget -O /tmp/antrea.yml.without_nodeportlocal https://github.com/vmware-tanzu/antrea/releases/download/v1.2.3/antrea.yml; ls /tmp/antrea.yml.without_nodeportlocal'
+      cp /tmp/antrea.yml.without_nodeportlocal /tmp/antrea.yml
+      sed -i -e "s/    #  NodePortLocal: false/      NodePortLocal: true/g" /tmp/antrea.yml
+    else
+      run_cmd 'wget -O /tmp/antrea.yml https://github.com/vmware-tanzu/antrea/releases/download/v1.2.3/antrea.yml; test $$(ls -l /tmp/antrea.yml | awk '"'"'{print $5}'"'"') -gt 0'
+    fi
+    run_cmd 'kubectl apply -f /tmp/antrea.yml'
 else
-  run_cmd 'wget -O /tmp/antrea.yml https://github.com/vmware-tanzu/antrea/releases/download/v1.2.3/antrea.yml; test $$(ls -l /tmp/antrea.yml | awk '"'"'{print $5}'"'"') -gt 0'
-fi
-run_cmd 'kubectl apply -f /tmp/antrea.yml'
-else
-if [ "$cni" == "calico" ] ; then
-  run_cmd 'wget -O /tmp/calico.yml https://docs.projectcalico.org/manifests/calico.yaml; test $(ls -l /tmp/calico.yml | awk '"'"'{print $5}'"'"') -gt 0'
-  for image in $(cat /tmp/calico.yml | grep 'image: ' | awk -F 'image: ' '{print $2}'); do image_to_search=$(echo $image | sed -e "s/docker.io\///g" | awk -F':' '{print $1}') ; run_cmd "docker pull $image; docker image ls | grep $image_to_search" ; done
-  run_cmd 'kubectl apply -f /tmp/calico.yml'
-fi
-if [ "$cni" == "flannel" ] ; then
-  run_cmd 'wget -O /tmp/flannel.yml https://github.com/coreos/flannel/raw/master/Documentation/kube-flannel.yml; test $(ls -l /tmp/flannel.yml | awk '"'"'{print $5}'"'"') -gt 0'
-  for image in $(cat /tmp/flannel.yml | grep -vE '^\s*(#)' | grep 'image: ' | awk -F 'image: ' '{print $2}'); do image_to_search=$(echo $image | awk -F':' '{print $1}') ; run_cmd "docker pull $image; docker image ls | grep $image_to_search" ; done
-  run_cmd 'kubectl apply -f /tmp/flannel.yml'
-fi
+    if [ "$cni" == "calico" ] ; then
+      run_cmd 'wget -O /tmp/calico.yml https://docs.projectcalico.org/manifests/calico.yaml; test $(ls -l /tmp/calico.yml | awk '"'"'{print $5}'"'"') -gt 0'
+      for image in $(cat /tmp/calico.yml | grep 'image: ' | awk -F 'image: ' '{print $2}'); do image_to_search=$(echo $image | sed -e "s/docker.io\///g" | awk -F':' '{print $1}') ; run_cmd "docker pull $image; docker image ls | grep $image_to_search" ; done
+      run_cmd 'kubectl apply -f /tmp/calico.yml'
+    fi
+    if [ "$cni" == "flannel" ] ; then
+      run_cmd 'wget -O /tmp/flannel.yml https://github.com/coreos/flannel/raw/master/Documentation/kube-flannel.yml; test $(ls -l /tmp/flannel.yml | awk '"'"'{print $5}'"'"') -gt 0'
+      for image in $(cat /tmp/flannel.yml | grep -vE '^\s*(#)' | grep 'image: ' | awk -F 'image: ' '{print $2}'); do image_to_search=$(echo $image | awk -F':' '{print $1}') ; run_cmd "docker pull $image; docker image ls | grep $image_to_search" ; done
+      run_cmd 'kubectl apply -f /tmp/flannel.yml'
+    fi
 fi
 #
 # K8s generate join command

@@ -140,6 +140,8 @@ data "template_file" "k8s_bootstrap_master" {
 }
 
 resource "null_resource" "k8s_bootstrap_master" {
+  depends_on = [null_resource.add_nic_to_master]
+
   connection {
     host = var.vcenter_network_mgmt_dhcp == true ? vsphere_virtual_machine.master.default_ip_address : split(",", replace(var.vcenter_network_mgmt_ip4_addresses, " ", ""))[3]
     type = "ssh"
