@@ -149,7 +149,7 @@ resource "null_resource" "k8s_bootstrap_master" {
   }
 
   provisioner "local-exec" {
-    command = "cat > k8s_bootstrap_master.sh <<EOL\n${data.template_file.k8s_bootstrap_master[count.index].rendered}\nEOL"
+    command = "cat > k8s_bootstrap_master.sh <<EOL\n${data.template_file.k8s_bootstrap_master.rendered}\nEOL"
   }
 
   provisioner "file" {
