@@ -93,7 +93,7 @@ fi
 kubeadm token create --print-join-command | tee /home/ubuntu/join-command
 sudo chown ubuntu:ubuntu /home/ubuntu/join-command
 #
-#
+# Change kubelet IP
 #
 sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.old
 ip=$(ip -f inet addr show $if_secondary_name | awk '/inet / {print $2}' | awk -F/ '{print $1}')

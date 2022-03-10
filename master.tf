@@ -8,15 +8,6 @@ data "template_file" "network_master_static" {
     ip4_second = "${split(",", replace(var.vcenter_network_k8s_ip4_addresses, " ", ""))[0]}/${split("/", var.vcenter_network_k8s_cidr)[1]}"
   }
 }
-
-data "template_file" "network_master_dhcp_static" {
-  count = (var.vcenter_network_mgmt_dhcp == true ? 1 : 0)
-  template = file("templates/network_master_dhcp_static.template")
-  vars = {
-    ip4_second = "${split(",", replace(var.vcenter_network_k8s_ip4_addresses, " ", ""))[0]}/${split("/", var.vcenter_network_k8s_cidr)[1]}"
-  }
-}
-
 data "template_file" "master_userdata_static" {
   template = file("${path.module}/userdata/master_static.userdata")
   count            = (var.vcenter_network_mgmt_dhcp == false ? 1 : 0)
@@ -34,6 +25,15 @@ data "template_file" "master_userdata_static" {
     docker_registry_password = var.docker_registry_password
   }
 }
+
+data "template_file" "network_master_dhcp_static" {
+  count = (var.vcenter_network_mgmt_dhcp == true ? 1 : 0)
+  template = file("templates/network_master_dhcp_static.template")
+  vars = {
+    ip4_second = "${split(",", replace(var.vcenter_network_k8s_ip4_addresses, " ", ""))[0]}/${split("/", var.vcenter_network_k8s_cidr)[1]}"
+  }
+}
+
 
 data "template_file" "master_userdata_dhcp" {
   template = file("${path.module}/userdata/master_dhcp.userdata")
