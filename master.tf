@@ -148,12 +148,12 @@ resource "null_resource" "k8s_bootstrap_master" {
     private_key = tls_private_key.ssh.private_key_pem
   }
 
-  provisioner "local-exec" {
-    command = "cat > k8s_bootstrap_master.sh <<EOL\n${data.template_file.k8s_bootstrap_master.rendered}\nEOL"
-  }
+//  provisioner "local-exec" {
+//    command = "cat > k8s_bootstrap_master.sh <<EOL\n${data.template_file.k8s_bootstrap_master.rendered}\nEOL"
+//  }
 
   provisioner "file" {
-    source = "k8s_bootstrap_master.sh"
+    content = data.template_file.k8s_bootstrap_master.rendered
     destination = "k8s_bootstrap_master.sh"
   }
 
