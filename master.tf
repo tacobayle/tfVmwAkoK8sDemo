@@ -157,7 +157,7 @@ resource "null_resource" "k8s_bootstrap_master" {
   }
 
   provisioner "remote-exec" {
-    inline = "sudo /bin/bash k8s_bootstrap_master.sh"
+    inline = ["sudo /bin/bash k8s_bootstrap_master.sh"]
   }
 
 }
