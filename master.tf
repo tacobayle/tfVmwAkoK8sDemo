@@ -126,45 +126,82 @@ resource "null_resource" "clear_ssh_key_locally_master" {
   }
 }
 
-resource "null_resource" "update_ip_to_master" {
-  depends_on = [null_resource.add_nic_to_master]
-
-  connection {
-    host        = var.vcenter_network_mgmt_dhcp == true ? vsphere_virtual_machine.master.default_ip_address : split(",", replace(var.vcenter_network_mgmt_ip4_addresses, " ", ""))[3]
-    type        = "ssh"
-    agent       = false
-    user        = var.master.username
-    private_key = tls_private_key.ssh.private_key_pem
-  }
-
-  provisioner "remote-exec" {
-    inline = var.vcenter_network_mgmt_dhcp == true ? [
-      "if_secondary_name=$(sudo dmesg | grep eth0 | tail -1 | awk -F' ' '{print $5}' | sed 's/://')",
-      "sudo sed -i -e \"s/if_name_secondary_to_be_replaced/\"$if_secondary_name\"/g\" /tmp/50-cloud-init.yaml",
-      "sudo cp /tmp/50-cloud-init.yaml ${var.master.net_plan_file}",
-      "sudo netplan apply",
-      "sleep 10",
-      "sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.old",
-      "ip=$(ip -f inet addr show $if_secondary_name | awk '/inet / {print $2}' | awk -F/ '{print $1}')",
-      "sudo sed '$${s/$/ --node-ip '$ip'/}' /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.old | sudo tee /etc/systemd/system/kubelet.service.d/10-kubeadm.conf",
-      "sudo systemctl daemon-reload",
-      "sudo systemctl restart kubelet"
-    ] : [
-      "if_secondary_name=$(sudo dmesg | grep eth0 | tail -1 | awk -F' ' '{print $5}' | sed 's/://')",
-      "sudo sed -i -e \"s/if_name_secondary_to_be_replaced/\"$if_secondary_name\"/g\" ${var.master.net_plan_file}",
-      "sudo netplan apply",
-      "sleep 10",
-      "sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.old",
-      "ip=$(ip -f inet addr show $if_secondary_name | awk '/inet / {print $2}' | awk -F/ '{print $1}')",
-      "sudo sed '$${s/$/ --node-ip '$ip'/}' /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.old | sudo tee /etc/systemd/system/kubelet.service.d/10-kubeadm.conf",
-      "sudo systemctl daemon-reload",
-      "sudo systemctl restart kubelet"
-    ]
+data "template_file" "k8s_bootstrap_master" {
+  template = file("${path.module}/userdata/k8s_bootstrap_master.template")
+  count            = (var.vcenter_network_mgmt_dhcp == true ? 1 : 0)
+  vars = {
+    ip_k8s = split(",", replace(var.vcenter_network_k8s_ip4_addresses, " ", ""))[0]
+    net_plan_file = var.master.net_plan_file
+    docker_registry_username = var.docker_registry_username
+    docker_registry_password = var.docker_registry_password
+    cni_name = var.K8s_cni_name
+    ako_service_type = local.ako_service_type
   }
 }
 
+resource "null_resource" "k8s_bootstrap_master" {
+  connection {
+    host = var.vcenter_network_mgmt_dhcp == true ? vsphere_virtual_machine.master.default_ip_address : split(",", replace(var.vcenter_network_mgmt_ip4_addresses, " ", ""))[3]
+    type = "ssh"
+    agent = false
+    user = "ubuntu"
+    private_key = tls_private_key.ssh.private_key_pem
+  }
+
+  provisioner "local-exec" {
+    command = "cat > k8s_bootstrap_master.sh <<EOL\n${data.template_file.k8s_bootstrap_master[count.index].rendered}\nEOL"
+  }
+
+  provisioner "file" {
+    source = "k8s_bootstrap_master.sh"
+    destination = "k8s_bootstrap_master.sh"
+  }
+
+  provisioner "remote-exec" {
+    inline = "sudo /bin/bash k8s_bootstrap_master.sh"
+  }
+
+}
+
+//resource "null_resource" "update_ip_to_master" {
+//  depends_on = [null_resource.add_nic_to_master]
+//
+//  connection {
+//    host        = var.vcenter_network_mgmt_dhcp == true ? vsphere_virtual_machine.master.default_ip_address : split(",", replace(var.vcenter_network_mgmt_ip4_addresses, " ", ""))[3]
+//    type        = "ssh"
+//    agent       = false
+//    user        = var.master.username
+//    private_key = tls_private_key.ssh.private_key_pem
+//  }
+//
+//  provisioner "remote-exec" {
+//    inline = var.vcenter_network_mgmt_dhcp == true ? [
+//      "if_secondary_name=$(sudo dmesg | grep eth0 | tail -1 | awk -F' ' '{print $5}' | sed 's/://')",
+//      "sudo sed -i -e \"s/if_name_secondary_to_be_replaced/\"$if_secondary_name\"/g\" /tmp/50-cloud-init.yaml",
+//      "sudo cp /tmp/50-cloud-init.yaml ${var.master.net_plan_file}",
+//      "sudo netplan apply",
+//      "sleep 10",
+//      "sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.old",
+//      "ip=$(ip -f inet addr show $if_secondary_name | awk '/inet / {print $2}' | awk -F/ '{print $1}')",
+//      "sudo sed '$${s/$/ --node-ip '$ip'/}' /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.old | sudo tee /etc/systemd/system/kubelet.service.d/10-kubeadm.conf",
+//      "sudo systemctl daemon-reload",
+//      "sudo systemctl restart kubelet"
+//    ] : [
+//      "if_secondary_name=$(sudo dmesg | grep eth0 | tail -1 | awk -F' ' '{print $5}' | sed 's/://')",
+//      "sudo sed -i -e \"s/if_name_secondary_to_be_replaced/\"$if_secondary_name\"/g\" ${var.master.net_plan_file}",
+//      "sudo netplan apply",
+//      "sleep 10",
+//      "sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.old",
+//      "ip=$(ip -f inet addr show $if_secondary_name | awk '/inet / {print $2}' | awk -F/ '{print $1}')",
+//      "sudo sed '$${s/$/ --node-ip '$ip'/}' /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.old | sudo tee /etc/systemd/system/kubelet.service.d/10-kubeadm.conf",
+//      "sudo systemctl daemon-reload",
+//      "sudo systemctl restart kubelet"
+//    ]
+//  }
+//}
+
 resource "null_resource" "copy_join_command_to_tf" {
-  depends_on = [null_resource.update_ip_to_master, vsphere_virtual_machine.master]
+  depends_on = [null_resource.k8s_bootstrap_master, vsphere_virtual_machine.master]
   provisioner "local-exec" {
     command = var.vcenter_network_mgmt_dhcp == true ? "scp -i ~/.ssh/${var.ssh_key.private_key_basename}-${random_string.id.result}.pem -o StrictHostKeyChecking=no ubuntu@${vsphere_virtual_machine.master.default_ip_address}:/home/ubuntu/join-command join-command" : "scp -i ~/.ssh/${var.ssh_key.private_key_basename}-${random_string.id.result}.pem -o StrictHostKeyChecking=no ubuntu@${split(",", replace(var.vcenter_network_mgmt_ip4_addresses, " ", ""))[3]}:/home/ubuntu/join-command join-command"
   }
