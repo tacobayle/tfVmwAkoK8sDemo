@@ -203,7 +203,7 @@ resource "null_resource" "k8s_bootstrap_master" {
 //}
 
 resource "null_resource" "copy_join_command_to_tf" {
-  depends_on = [null_resource.k8s_bootstrap_master, vsphere_virtual_machine.master]
+  depends_on = [null_resource.k8s_bootstrap_master]
   provisioner "local-exec" {
     command = var.vcenter_network_mgmt_dhcp == true ? "scp -i ~/.ssh/${var.ssh_key.private_key_basename}-${random_string.id.result}.pem -o StrictHostKeyChecking=no ubuntu@${vsphere_virtual_machine.master.default_ip_address}:/home/ubuntu/join-command join-command" : "scp -i ~/.ssh/${var.ssh_key.private_key_basename}-${random_string.id.result}.pem -o StrictHostKeyChecking=no ubuntu@${split(",", replace(var.vcenter_network_mgmt_ip4_addresses, " ", ""))[3]}:/home/ubuntu/join-command join-command"
   }
@@ -227,12 +227,12 @@ resource "null_resource" "K8s_sanity_check" {
     private_key = tls_private_key.ssh.private_key_pem
   }
 
-  provisioner "local-exec" {
-    command = "cat > K8s_sanity_check.sh <<EOL\n${data.template_file.K8s_sanity_check.rendered}\nEOL"
-  }
+//  provisioner "local-exec" {
+//    command = "cat > K8s_sanity_check.sh <<EOL\n${data.template_file.K8s_sanity_check.rendered}\nEOL"
+//  }
 
   provisioner "file" {
-    source = "K8s_sanity_check.sh"
+    content = data.template_file.K8s_sanity_check.rendered
     destination = "K8s_sanity_check.sh"
   }
 
