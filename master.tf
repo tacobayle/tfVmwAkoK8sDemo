@@ -40,16 +40,8 @@ data "template_file" "master_userdata_dhcp" {
   count            = (var.vcenter_network_mgmt_dhcp == true ? 1 : 0)
   vars = {
     password      = var.static_password == null ? random_string.password.result : var.static_password
-    net_plan_file = var.master.net_plan_file
     hostname = "${var.master.basename}${random_string.id.result}"
-    K8s_version = var.K8s_version
-    Docker_version = var.Docker_version
-    K8s_network_pod = var.K8s_network_pod
     network_config_static  = base64encode(data.template_file.network_master_dhcp_static[0].rendered)
-    cni_name = var.K8s_cni_name
-    ako_service_type = local.ako_service_type
-    docker_registry_username = var.docker_registry_username
-    docker_registry_password = var.docker_registry_password
   }
 }
 
