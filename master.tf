@@ -128,7 +128,6 @@ resource "null_resource" "clear_ssh_key_locally_master" {
 
 data "template_file" "k8s_bootstrap_master" {
   template = file("${path.module}/templates/k8s_bootstrap_master.template")
-  count            = (var.vcenter_network_mgmt_dhcp == true ? 1 : 0)
   vars = {
     ip_k8s = split(",", replace(var.vcenter_network_k8s_ip4_addresses, " ", ""))[0]
     net_plan_file = var.master.net_plan_file
