@@ -19,6 +19,19 @@ run_cmd() {
       fi
     done
 }
+run_cmd 'sudo rm -f /tmp/apt-key.gpg; wget https://packages.cloud.google.com/apt/doc/apt-key.gpg -O /tmp/apt-key.gpg; test $(ls -l /tmp/apt-key.gpg | awk '"'"'{print $5}'"'"') -gt 0'
+run_cmd 'sudo apt-key add /tmp/apt-key.gpg'
+run_cmd 'sudo rm -f /tmp/signing.asc; wget https://baltocdn.com/helm/signing.asc -O /tmp/signing.asc; test $(ls -l /tmp/signing.asc | awk '"'"'{print $5}'"'"') -gt 0'
+run_cmd 'sudo apt-key add /tmp/signing.asc'
+run_cmd 'sudo rm -f /tmp/gpg; wget https://download.docker.com/linux/ubuntu/gpg -O /tmp/gpg; test $(ls -l /tmp/gpg | awk '"'"'{print $5}'"'"') -gt 0'
+run_cmd 'sudo apt-key add /tmp/gpg'
+run_cmd '! sudo add-apt-repository "deb https://apt.kubernetes.io/ kubernetes-xenial main" | grep Err:'
+run_cmd '! sudo add-apt-repository "deb https://baltocdn.com/helm/stable/debian/ all main" | grep Err:'
+run_cmd '! sudo add-apt-repository  "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | grep Err:'
+run_cmd 'apt-get install -y docker-ce=${Docker_version}; ls /usr/bin/docker'
+run_cmd 'apt-get install -y kubeadm=${K8s_version} kubectl=${K8s_version} kubelet=${K8s_version}; ls /usr/bin/kubeadm /usr/bin/kubectl /usr/bin/kubelet'
+run_cmd 'apt-get install -y helm; ls /usr/bin/helm'
+run_cmd 'sudo apt-get install -y jq; ls /usr/bin/jq'
 if_secondary_name=$(sudo dmesg | grep eth0 | tail -1 | awk -F' ' '{print $5}' | sed 's/://')
 sudo sed -i -e "s/if_name_secondary_to_be_replaced/"$if_secondary_name"/g" /tmp/50-cloud-init.yaml
 sudo cp /tmp/50-cloud-init.yaml ${net_plan_file}
