@@ -8,9 +8,9 @@ output "Avi_password" {
   value = random_string.password.result
 }
 
-//output "Avi_controller_IP" {
-//  value = var.vcenter_network_mgmt_dhcp == true ? "https://${vsphere_virtual_machine.controller_dhcp[0].default_ip_address}" : "https://${split(",", replace(var.vcenter_network_mgmt_ip4_addresses, " ", ""))[0]}"
-//}
+output "Avi_controller_IP" {
+  value = var.vcenter_network_mgmt_dhcp == true ? "https://${vsphere_virtual_machine.controller_dhcp[0].default_ip_address}" : "https://${split(",", replace(var.vcenter_network_mgmt_ip4_addresses, " ", ""))[0]}"
+}
 
 output "Ssh_username" {
   value = "ubuntu"
