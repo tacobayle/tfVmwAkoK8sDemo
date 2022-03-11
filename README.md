@@ -168,6 +168,8 @@ $(terraform output -json | jq -r .Destroy_command_avi_config_only.value) ; terra
   - you can check this new application by connecting/sshing to your client_demo VM and doing something like:
     ```shell
     ping web1.default.avi.com
+    ```
+    ```shell
     curl web1.default.avi.com
     ```
     
@@ -202,6 +204,8 @@ $(terraform output -json | jq -r .Destroy_command_avi_config_only.value) ; terra
   - you can check this new application by connecting/sshing to your client_demo VM and doing something like:
     ```
     ping ingress.cluster1.avi.com
+    ```
+    ```
     curl ingress.cluster1.avi.com
     ```
 - Update ingress (non HTTPS) to HTTPS using a cert already configured in the Avi controller
@@ -219,6 +223,8 @@ $(terraform output -json | jq -r .Destroy_command_avi_config_only.value) ; terra
   - you can check this new application by connecting/sshing to your client_demo VM and doing something like:
     ```
     ping ingress.cluster1.avi.com
+    ```
+    ```
     curl -k https://ingress.cluster1.avi.com
     ```
 - ingress (HTTPS using an HTTPS certificate already configured in K8s cluster)
@@ -235,6 +241,8 @@ $(terraform output -json | jq -r .Destroy_command_avi_config_only.value) ; terra
   - you can check this new application by connecting/sshing to your client_demo VM and doing something like:
     ```
     ping secure-ingress.cluster1.avi.com
+    ```
+    ```
     curl -k https://secure-ingress.cluster1.avi.com
     ```
 - Attach a WAF policy to the secure ingress previously created:
