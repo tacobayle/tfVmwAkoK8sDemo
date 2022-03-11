@@ -8,23 +8,6 @@ data "template_file" "network_master_static" {
     ip4_second = "${split(",", replace(var.vcenter_network_k8s_ip4_addresses, " ", ""))[0]}/${split("/", var.vcenter_network_k8s_cidr)[1]}"
   }
 }
-//data "template_file" "master_userdata_static" {
-//  template = file("${path.module}/userdata/master_static.userdata")
-//  count            = (var.vcenter_network_mgmt_dhcp == false ? 1 : 0)
-//  vars = {
-//    password      = var.static_password == null ? random_string.password.result : var.static_password
-//    net_plan_file = var.master.net_plan_file
-//    hostname = "${var.master.basename}${random_string.id.result}"
-//    network_config  = base64encode(data.template_file.network_master_static[count.index].rendered)
-//    K8s_version = var.K8s_version
-//    Docker_version = var.Docker_version
-//    K8s_network_pod = var.K8s_network_pod
-//    cni_name = var.K8s_cni_name
-//    ako_service_type = local.ako_service_type
-//    docker_registry_username = var.docker_registry_username
-//    docker_registry_password = var.docker_registry_password
-//  }
-//}
 
 data "template_file" "network_master_dhcp_static" {
   count = (var.vcenter_network_mgmt_dhcp == true ? 1 : 0)
@@ -33,7 +16,6 @@ data "template_file" "network_master_dhcp_static" {
     ip4_second = "${split(",", replace(var.vcenter_network_k8s_ip4_addresses, " ", ""))[0]}/${split("/", var.vcenter_network_k8s_cidr)[1]}"
   }
 }
-
 
 data "template_file" "master_userdata" {
   template = var.vcenter_network_mgmt_dhcp == true ? file("${path.module}/userdata/master_dhcp.userdata") : file("${path.module}/userdata/master_static.userdata")
@@ -151,10 +133,6 @@ resource "null_resource" "k8s_bootstrap_master" {
     private_key = tls_private_key.ssh.private_key_pem
   }
 
-//  provisioner "local-exec" {
-//    command = "cat > k8s_bootstrap_master.sh <<EOL\n${data.template_file.k8s_bootstrap_master.rendered}\nEOL"
-//  }
-
   provisioner "file" {
     content = data.template_file.k8s_bootstrap_master.rendered
     destination = "k8s_bootstrap_master.sh"
@@ -165,43 +143,6 @@ resource "null_resource" "k8s_bootstrap_master" {
   }
 
 }
-
-//resource "null_resource" "update_ip_to_master" {
-//  depends_on = [null_resource.add_nic_to_master]
-//
-//  connection {
-//    host        = var.vcenter_network_mgmt_dhcp == true ? vsphere_virtual_machine.master.default_ip_address : split(",", replace(var.vcenter_network_mgmt_ip4_addresses, " ", ""))[3]
-//    type        = "ssh"
-//    agent       = false
-//    user        = var.master.username
-//    private_key = tls_private_key.ssh.private_key_pem
-//  }
-//
-//  provisioner "remote-exec" {
-//    inline = var.vcenter_network_mgmt_dhcp == true ? [
-//      "if_secondary_name=$(sudo dmesg | grep eth0 | tail -1 | awk -F' ' '{print $5}' | sed 's/://')",
-//      "sudo sed -i -e \"s/if_name_secondary_to_be_replaced/\"$if_secondary_name\"/g\" /tmp/50-cloud-init.yaml",
-//      "sudo cp /tmp/50-cloud-init.yaml ${var.master.net_plan_file}",
-//      "sudo netplan apply",
-//      "sleep 10",
-//      "sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.old",
-//      "ip=$(ip -f inet addr show $if_secondary_name | awk '/inet / {print $2}' | awk -F/ '{print $1}')",
-//      "sudo sed '$${s/$/ --node-ip '$ip'/}' /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.old | sudo tee /etc/systemd/system/kubelet.service.d/10-kubeadm.conf",
-//      "sudo systemctl daemon-reload",
-//      "sudo systemctl restart kubelet"
-//    ] : [
-//      "if_secondary_name=$(sudo dmesg | grep eth0 | tail -1 | awk -F' ' '{print $5}' | sed 's/://')",
-//      "sudo sed -i -e \"s/if_name_secondary_to_be_replaced/\"$if_secondary_name\"/g\" ${var.master.net_plan_file}",
-//      "sudo netplan apply",
-//      "sleep 10",
-//      "sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.old",
-//      "ip=$(ip -f inet addr show $if_secondary_name | awk '/inet / {print $2}' | awk -F/ '{print $1}')",
-//      "sudo sed '$${s/$/ --node-ip '$ip'/}' /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.old | sudo tee /etc/systemd/system/kubelet.service.d/10-kubeadm.conf",
-//      "sudo systemctl daemon-reload",
-//      "sudo systemctl restart kubelet"
-//    ]
-//  }
-//}
 
 resource "null_resource" "copy_join_command_to_tf" {
   depends_on = [null_resource.k8s_bootstrap_master]
@@ -227,10 +168,6 @@ resource "null_resource" "K8s_sanity_check" {
     user = var.master.username
     private_key = tls_private_key.ssh.private_key_pem
   }
-
-//  provisioner "local-exec" {
-//    command = "cat > K8s_sanity_check.sh <<EOL\n${data.template_file.K8s_sanity_check.rendered}\nEOL"
-//  }
 
   provisioner "file" {
     content = data.template_file.K8s_sanity_check.rendered
