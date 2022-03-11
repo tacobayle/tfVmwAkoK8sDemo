@@ -31,6 +31,7 @@ run_cmd '! sudo add-apt-repository  "deb [arch=amd64] https://download.docker.co
 run_cmd 'apt-get install -y docker-ce=${Docker_version}; ls /usr/bin/docker'
 run_cmd 'apt-get install -y kubeadm=${K8s_version} kubectl=${K8s_version} kubelet=${K8s_version}; ls /usr/bin/kubeadm /usr/bin/kubectl /usr/bin/kubelet'
 run_cmd 'apt-get install -y helm; ls /usr/bin/helm'
+if_secondary_name=$(sudo dmesg | grep eth0 | tail -1 | awk -F' ' '{print $5}' | sed 's/://')
 if [[ ${dhcp} == true ]] ; then
   sudo sed -i -e "s/if_name_secondary_to_be_replaced/"$if_secondary_name"/g" /tmp/50-cloud-init.yaml
   sudo cp /tmp/50-cloud-init.yaml ${net_plan_file}
