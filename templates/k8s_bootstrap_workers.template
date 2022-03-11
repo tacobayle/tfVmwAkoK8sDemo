@@ -39,6 +39,8 @@ fi
 if [[ ${dhcp} == false ]] ; then
   sudo sed -i -e \"s/if_name_secondary_to_be_replaced/\"$if_secondary_name\"/g\" ${net_plan_file}
 fi
+sudo netplan apply
+sleep 10
 sudo usermod -a -G docker ubuntu
 #
 # docker login if docker_registry_username and docker_registry_password are defined
