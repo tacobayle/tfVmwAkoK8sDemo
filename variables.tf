@@ -125,7 +125,7 @@ variable "K8s_cni_name" {
 }
 
 variable "K8s_network_pod" {
-  default = "192.168.0.0/16"
+  default = "10.244.0.0/16"
 }
 
 variable "Docker_version" {
