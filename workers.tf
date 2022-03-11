@@ -138,6 +138,7 @@ data "template_file" "k8s_bootstrap_workers" {
 }
 
 resource "null_resource" "k8s_bootstrap_workers" {
+  count = 2
   depends_on = [null_resource.add_nic_to_workers]
 
   connection {
@@ -153,7 +154,7 @@ resource "null_resource" "k8s_bootstrap_workers" {
   //  }
 
   provisioner "file" {
-    content = data.template_file.k8s_bootstrap_workers.rendered
+    content = data.template_file.k8s_bootstrap_workers[count.index].rendered
     destination = "k8s_bootstrap_workers.sh"
   }
 
