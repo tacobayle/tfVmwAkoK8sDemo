@@ -1,6 +1,3 @@
-locals {
-  ako_service_type = var.K8s_cni_name == "antrea" ? var.ako_service_type : "ClusterIP"
-}
 
 data "template_file" "values" {
   count = 1

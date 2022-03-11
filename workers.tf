@@ -125,7 +125,6 @@ data "template_file" "k8s_bootstrap_workers" {
   vars = {
     ip_k8s = split(",", replace(var.vcenter_network_k8s_ip4_addresses, " ", ""))[0]
     net_plan_file = var.master.net_plan_file
-    K8s_network_pod = var.K8s_network_pod
     K8s_version = var.K8s_version
     Docker_version = var.Docker_version
     docker_registry_username = var.docker_registry_username

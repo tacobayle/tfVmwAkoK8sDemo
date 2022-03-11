@@ -124,7 +124,7 @@ variable "K8s_cni_name" {
   default = "flannel"
 }
 
-variable "K8s_network_pod" {
+variable "K8s_pod_cidr" {
   default = "192.168.0.0/16"
 }
 

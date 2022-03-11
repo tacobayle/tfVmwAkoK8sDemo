@@ -125,12 +125,17 @@ data "template_file" "k8s_bootstrap_master" {
     ip_k8s = split(",", replace(var.vcenter_network_k8s_ip4_addresses, " ", ""))[0]
     net_plan_file = var.master.net_plan_file
     docker_registry_username = var.docker_registry_username
-    K8s_network_pod = var.K8s_network_pod
+    K8s_pod_cidr = var.K8s_pod_cidr
+    K8s_pod_network = split("/", var.K8s_pod_cidr)[0]
+    K8s_pod_prefix = split("/", var.K8s_pod_cidr)[1]
+    default_flannel_pod_prefix = split("/", local.default_flannel_pod_network_cidr)[1]
     K8s_version = var.K8s_version
     Docker_version = var.Docker_version
     docker_registry_password = var.docker_registry_password
     cni_name = var.K8s_cni_name
     ako_service_type = local.ako_service_type
+    default_flannel_pod_network = split("/", local.default_flannel_pod_network_cidr)[0]
+    default_flannel_pod_prefix = split("/", local.default_flannel_pod_network_cidr)[1]
     dhcp = var.vcenter_network_mgmt_dhcp
   }
 }

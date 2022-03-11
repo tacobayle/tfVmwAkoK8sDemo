@@ -44,7 +44,7 @@ sudo netplan apply
 sleep 10
 sudo usermod -a -G docker ubuntu
 sudo kubeadm config images pull
-sudo kubeadm init --pod-network-cidr=${K8s_network_pod} --apiserver-advertise-address ${ip_k8s}
+sudo kubeadm init --pod-network-cidr=${K8s_pod_cidr} --apiserver-advertise-address ${ip_k8s}
 mkdir -p /home/ubuntu/.kube
 sudo cp -i /etc/kubernetes/admin.conf /home/ubuntu/.kube/config
 sudo chown ubuntu:ubuntu /home/ubuntu/.kube/config
@@ -89,6 +89,7 @@ else
     if [ "$cni" == "flannel" ] ; then
       run_cmd 'wget -O /tmp/flannel.yml https://github.com/coreos/flannel/raw/master/Documentation/kube-flannel.yml; test $(ls -l /tmp/flannel.yml | awk '"'"'{print $5}'"'"') -gt 0'
       for image in $(cat /tmp/flannel.yml | grep -vE '^\s*(#)' | grep 'image: ' | awk -F 'image: ' '{print $2}'); do image_to_search=$(echo $image | awk -F':' '{print $1}') ; run_cmd "docker pull $image; docker image ls | grep $image_to_search" ; done
+      sudo sed -i -e "s/      \"Network\": \"${default_flannel_pod_network}\/${default_flannel_pod_prefix}\"/      \"Network\": \"${K8s_pod_network}\/${K8s_pod_prefix}\"/g" /tmp/flannel.yml
       run_cmd 'kubectl apply -f /tmp/flannel.yml'
     fi
 fi
