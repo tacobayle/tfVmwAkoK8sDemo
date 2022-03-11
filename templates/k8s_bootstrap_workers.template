@@ -62,10 +62,18 @@ run_cmd "docker pull tacobayle/busybox-v1; docker image ls | grep tacobayle/busy
 #
 cni=${cni_name}
 if [ "$cni" == "calico" ] ; then
-run_cmd 'wget -O /tmp/calico.yml https://docs.projectcalico.org/manifests/calico.yaml; test $(ls -l /tmp/calico.yml | awk '"'"'{print $5}'"'"') -gt 0'
-for image in $(cat /tmp/calico.yml | grep 'image: ' | awk -F 'image: ' '{print $2}'); do image_to_search=$(echo $image | sed -e "s/docker.io\///g" | awk -F':' '{print $1}') ; run_cmd "docker pull $image; docker image ls | grep $image_to_search" ; done
+  run_cmd 'wget -O /tmp/calico.yml https://docs.projectcalico.org/manifests/calico.yaml; test $(ls -l /tmp/calico.yml | awk '"'"'{print $5}'"'"') -gt 0'
+  for image in $(cat /tmp/calico.yml | grep 'image: ' | awk -F 'image: ' '{print $2}'); do image_to_search=$(echo $image | sed -e "s/docker.io\///g" | awk -F':' '{print $1}') ; run_cmd "docker pull $image; docker image ls | grep $image_to_search" ; done
 fi
 if [ "$cni" == "flannel" ] ; then
-run_cmd 'wget -O /tmp/flannel.yml https://github.com/coreos/flannel/raw/master/Documentation/kube-flannel.yml; test $(ls -l /tmp/flannel.yml | awk '"'"'{print $5}'"'"') -gt 0'
-for image in $(cat /tmp/flannel.yml | grep -vE '^\s*(#)' | grep 'image: ' | awk -F 'image: ' '{print $2}'); do image_to_search=$(echo $image | awk -F':' '{print $1}') ; run_cmd "docker pull $image; docker image ls | grep $image_to_search" ; done
+  run_cmd 'wget -O /tmp/flannel.yml https://github.com/coreos/flannel/raw/master/Documentation/kube-flannel.yml; test $(ls -l /tmp/flannel.yml | awk '"'"'{print $5}'"'"') -gt 0'
+  for image in $(cat /tmp/flannel.yml | grep -vE '^\s*(#)' | grep 'image: ' | awk -F 'image: ' '{print $2}'); do image_to_search=$(echo $image | awk -F':' '{print $1}') ; run_cmd "docker pull $image; docker image ls | grep $image_to_search" ; done
 fi
+#
+# Change kubelet IP
+#
+sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.old
+ip=$(ip -f inet addr show $if_secondary_name | awk '/inet / {print $2}' | awk -F/ '{print $1}')
+sudo sed '$${s/$/ --node-ip '$ip'/}' /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.old | sudo tee /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+sudo systemctl daemon-reload
+sudo systemctl restart kubelet
