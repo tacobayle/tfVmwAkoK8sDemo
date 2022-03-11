@@ -8,23 +8,23 @@ data "template_file" "network_master_static" {
     ip4_second = "${split(",", replace(var.vcenter_network_k8s_ip4_addresses, " ", ""))[0]}/${split("/", var.vcenter_network_k8s_cidr)[1]}"
   }
 }
-data "template_file" "master_userdata_static" {
-  template = file("${path.module}/userdata/master_static.userdata")
-  count            = (var.vcenter_network_mgmt_dhcp == false ? 1 : 0)
-  vars = {
-    password      = var.static_password == null ? random_string.password.result : var.static_password
-    net_plan_file = var.master.net_plan_file
-    hostname = "${var.master.basename}${random_string.id.result}"
-    network_config  = base64encode(data.template_file.network_master_static[count.index].rendered)
-    K8s_version = var.K8s_version
-    Docker_version = var.Docker_version
-    K8s_network_pod = var.K8s_network_pod
-    cni_name = var.K8s_cni_name
-    ako_service_type = local.ako_service_type
-    docker_registry_username = var.docker_registry_username
-    docker_registry_password = var.docker_registry_password
-  }
-}
+//data "template_file" "master_userdata_static" {
+//  template = file("${path.module}/userdata/master_static.userdata")
+//  count            = (var.vcenter_network_mgmt_dhcp == false ? 1 : 0)
+//  vars = {
+//    password      = var.static_password == null ? random_string.password.result : var.static_password
+//    net_plan_file = var.master.net_plan_file
+//    hostname = "${var.master.basename}${random_string.id.result}"
+//    network_config  = base64encode(data.template_file.network_master_static[count.index].rendered)
+//    K8s_version = var.K8s_version
+//    Docker_version = var.Docker_version
+//    K8s_network_pod = var.K8s_network_pod
+//    cni_name = var.K8s_cni_name
+//    ako_service_type = local.ako_service_type
+//    docker_registry_username = var.docker_registry_username
+//    docker_registry_password = var.docker_registry_password
+//  }
+//}
 
 data "template_file" "network_master_dhcp_static" {
   count = (var.vcenter_network_mgmt_dhcp == true ? 1 : 0)
@@ -35,13 +35,14 @@ data "template_file" "network_master_dhcp_static" {
 }
 
 
-data "template_file" "master_userdata_dhcp" {
-  template = file("${path.module}/userdata/master_dhcp.userdata")
-  count            = (var.vcenter_network_mgmt_dhcp == true ? 1 : 0)
+data "template_file" "master_userdata" {
+  template = var.vcenter_network_mgmt_dhcp == true ? file("${path.module}/userdata/master_dhcp.userdata") : file("${path.module}/userdata/master_static.userdata")
+  count            = 1
   vars = {
     password      = var.static_password == null ? random_string.password.result : var.static_password
     hostname = "${var.master.basename}${random_string.id.result}"
-    network_config_static  = base64encode(data.template_file.network_master_dhcp_static[0].rendered)
+    network_config  = var.vcenter_network_mgmt_dhcp == true ? base64encode(data.template_file.network_master_dhcp_static[0].rendered) : base64encode(data.template_file.network_master_static[count.index].rendered)
+    net_plan_file = var.master.net_plan_file
   }
 }
 
@@ -77,7 +78,7 @@ resource "vsphere_virtual_machine" "master" {
     properties = {
       hostname    = "${var.master.basename}-${random_string.id.result}"
       public-keys = chomp(tls_private_key.ssh.public_key_openssh)
-      user-data   = var.vcenter_network_mgmt_dhcp == true ? base64encode(data.template_file.master_userdata_dhcp[0].rendered) : base64encode(data.template_file.master_userdata_static[0].rendered)
+      user-data   = base64encode(data.template_file.master_userdata[0].rendered)
     }
   }
 
@@ -130,6 +131,7 @@ data "template_file" "k8s_bootstrap_master" {
     docker_registry_password = var.docker_registry_password
     cni_name = var.K8s_cni_name
     ako_service_type = local.ako_service_type
+    dhcp = var.vcenter_network_mgmt_dhcp
   }
 }
 

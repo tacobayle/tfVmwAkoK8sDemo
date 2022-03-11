@@ -43,7 +43,7 @@ write_files:
       network: {config: disabled}
     path: /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg
   - encoding: base64
-    content: ${network_config_static}
+    content: ${network_config}
     path: /tmp/50-cloud-init.yaml
 
 runcmd:

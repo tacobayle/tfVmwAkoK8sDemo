@@ -17,36 +17,30 @@ data "template_file" "network_workers_dhcp_static" {
   }
 }
 
-data "template_file" "workers_userdata_static" {
-  template = file("${path.module}/userdata/workers_static.userdata")
-  count            = (var.vcenter_network_mgmt_dhcp == false ? 2 : 0)
-  vars = {
-    password      = var.static_password == null ? random_string.password.result : var.static_password
-    net_plan_file = var.workers.net_plan_file
-    hostname = "${var.workers.basename}-${count.index}-${random_string.id.result}"
-    network_config  = base64encode(data.template_file.network_workers_static[count.index].rendered)
-    K8s_version = var.K8s_version
-    Docker_version = var.Docker_version
-    cni_name = var.K8s_cni_name
-    docker_registry_username = var.docker_registry_username
-    docker_registry_password = var.docker_registry_password
-  }
-}
+//data "template_file" "workers_userdata_static" {
+//  template = file("${path.module}/userdata/workers_static.userdata")
+//  count            = (var.vcenter_network_mgmt_dhcp == false ? 2 : 0)
+//  vars = {
+//    password      = var.static_password == null ? random_string.password.result : var.static_password
+//    net_plan_file = var.workers.net_plan_file
+//    hostname = "${var.workers.basename}-${count.index}-${random_string.id.result}"
+//    network_config  = base64encode(data.template_file.network_workers_static[count.index].rendered)
+//    K8s_version = var.K8s_version
+//    Docker_version = var.Docker_version
+//    cni_name = var.K8s_cni_name
+//    docker_registry_username = var.docker_registry_username
+//    docker_registry_password = var.docker_registry_password
+//  }
+//}
 
-data "template_file" "workers_userdata_dhcp" {
-  template = file("${path.module}/userdata/workers_dhcp.userdata")
-  count            = (var.vcenter_network_mgmt_dhcp == true ? 2 : 0)
+data "template_file" "workers_userdata" {
+  template = var.vcenter_network_mgmt_dhcp == true ? file("${path.module}/userdata/workers_dhcp.userdata") : file("${path.module}/userdata/workers_static.userdata")
+  count            = 2
   vars = {
     password      = var.static_password == null ? random_string.password.result : var.static_password
     net_plan_file = var.workers.net_plan_file
     hostname = "${var.workers.basename}-${count.index}-${random_string.id.result}"
-    K8s_version = var.K8s_version
-    Docker_version = var.Docker_version
-    network_config_static  = base64encode(data.template_file.network_workers_dhcp_static[count.index].rendered)
-    cni_name = var.K8s_cni_name
-    ako_service_type = local.ako_service_type
-    docker_registry_username = var.docker_registry_username
-    docker_registry_password = var.docker_registry_password
+    network_config  = var.vcenter_network_mgmt_dhcp == true ? base64encode(data.template_file.network_workers_dhcp_static[count.index].rendered) : base64encode(data.template_file.network_workers_static[count.index].rendered)
   }
 }
 
@@ -83,7 +77,7 @@ resource "vsphere_virtual_machine" "workers" {
     properties = {
       hostname    = "${var.workers.basename}-${random_string.id.result}-${count.index}"
       public-keys = chomp(tls_private_key.ssh.public_key_openssh)
-      user-data   = var.vcenter_network_mgmt_dhcp == true ? base64encode(data.template_file.workers_userdata_dhcp[count.index].rendered) : base64encode(data.template_file.workers_userdata_static[count.index].rendered)
+      user-data   = base64encode(data.template_file.workers_userdata[count.index].rendered)
     }
   }
 
@@ -125,47 +119,91 @@ resource "null_resource" "clear_ssh_key_locally_workers" {
   }
 }
 
-resource "null_resource" "update_ip_to_workers" {
-  depends_on = [null_resource.add_nic_to_workers]
+data "template_file" "k8s_bootstrap_workers" {
+  template = file("${path.module}/templates/k8s_bootstrap_workers.template")
   count = 2
-
-  connection {
-    host        = var.vcenter_network_mgmt_dhcp == true ? vsphere_virtual_machine.workers[count.index].default_ip_address : split(",", replace(var.vcenter_network_mgmt_ip4_addresses, " ", ""))[4 + count.index]
-    type        = "ssh"
-    agent       = false
-    user        = var.workers.username
-    private_key = tls_private_key.ssh.private_key_pem
-  }
-
-  provisioner "remote-exec" {
-    inline = var.vcenter_network_mgmt_dhcp == true ? [
-      "if_secondary_name=$(sudo dmesg | grep eth0 | tail -1 | awk -F' ' '{print $5}' | sed 's/://')",
-      "sudo sed -i -e \"s/if_name_secondary_to_be_replaced/\"$if_secondary_name\"/g\" /tmp/50-cloud-init.yaml",
-      "sudo cp /tmp/50-cloud-init.yaml ${var.workers.net_plan_file}",
-      "sudo netplan apply",
-      "sleep 10",
-      "sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.old",
-      "ip=$(ip -f inet addr show $if_secondary_name | awk '/inet / {print $2}' | awk -F/ '{print $1}')",
-      "sudo sed '$${s/$/ --node-ip '$ip'/}' /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.old | sudo tee /etc/systemd/system/kubelet.service.d/10-kubeadm.conf",
-      "sudo systemctl daemon-reload",
-      "sudo systemctl restart kubelet"
-    ] : [
-      "if_secondary_name=$(sudo dmesg | grep eth0 | tail -1 | awk -F' ' '{print $5}' | sed 's/://')",
-      "sudo sed -i -e \"s/if_name_secondary_to_be_replaced/\"$if_secondary_name\"/g\" ${var.workers.net_plan_file}",
-      "sudo netplan apply",
-      "sleep 10",
-      "sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.old",
-      "ip=$(ip -f inet addr show $if_secondary_name | awk '/inet / {print $2}' | awk -F/ '{print $1}')",
-      "sudo sed '$${s/$/ --node-ip '$ip'/}' /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.old | sudo tee /etc/systemd/system/kubelet.service.d/10-kubeadm.conf",
-      "sudo systemctl daemon-reload",
-      "sudo systemctl restart kubelet"
-    ]
+  vars = {
+    ip_k8s = split(",", replace(var.vcenter_network_k8s_ip4_addresses, " ", ""))[0]
+    net_plan_file = var.master.net_plan_file
+    K8s_network_pod = var.K8s_network_pod
+    K8s_version = var.K8s_version
+    Docker_version = var.Docker_version
+    docker_registry_username = var.docker_registry_username
+    docker_registry_password = var.docker_registry_password
+    cni_name = var.K8s_cni_name
+    ako_service_type = local.ako_service_type
+    dhcp = var.vcenter_network_mgmt_dhcp
+    ip_k8s = split(",", replace(var.vcenter_network_k8s_ip4_addresses, " ", ""))[1 + count.index]
   }
 }
 
+resource "null_resource" "k8s_bootstrap_workers" {
+  depends_on = [null_resource.add_nic_to_workers]
+
+  connection {
+    host = var.vcenter_network_mgmt_dhcp == true ? vsphere_virtual_machine.workers[count.index].default_ip_address : split(",", replace(var.vcenter_network_mgmt_ip4_addresses, " ", ""))[4 + count.index]
+    type = "ssh"
+    agent = false
+    user = "ubuntu"
+    private_key = tls_private_key.ssh.private_key_pem
+  }
+
+  //  provisioner "local-exec" {
+  //    command = "cat > k8s_bootstrap_master.sh <<EOL\n${data.template_file.k8s_bootstrap_master.rendered}\nEOL"
+  //  }
+
+  provisioner "file" {
+    content = data.template_file.k8s_bootstrap_workers.rendered
+    destination = "k8s_bootstrap_workers.sh"
+  }
+
+  provisioner "remote-exec" {
+    inline = ["sudo /bin/bash k8s_bootstrap_workers.sh"]
+  }
+
+}
+
+//resource "null_resource" "update_ip_to_workers" {
+//  depends_on = [null_resource.add_nic_to_workers]
+//  count = 2
+//
+//  connection {
+//    host        = var.vcenter_network_mgmt_dhcp == true ? vsphere_virtual_machine.workers[count.index].default_ip_address : split(",", replace(var.vcenter_network_mgmt_ip4_addresses, " ", ""))[4 + count.index]
+//    type        = "ssh"
+//    agent       = false
+//    user        = var.workers.username
+//    private_key = tls_private_key.ssh.private_key_pem
+//  }
+//
+//  provisioner "remote-exec" {
+//    inline = var.vcenter_network_mgmt_dhcp == true ? [
+//      "if_secondary_name=$(sudo dmesg | grep eth0 | tail -1 | awk -F' ' '{print $5}' | sed 's/://')",
+//      "sudo sed -i -e \"s/if_name_secondary_to_be_replaced/\"$if_secondary_name\"/g\" /tmp/50-cloud-init.yaml",
+//      "sudo cp /tmp/50-cloud-init.yaml ${var.workers.net_plan_file}",
+//      "sudo netplan apply",
+//      "sleep 10",
+//      "sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.old",
+//      "ip=$(ip -f inet addr show $if_secondary_name | awk '/inet / {print $2}' | awk -F/ '{print $1}')",
+//      "sudo sed '$${s/$/ --node-ip '$ip'/}' /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.old | sudo tee /etc/systemd/system/kubelet.service.d/10-kubeadm.conf",
+//      "sudo systemctl daemon-reload",
+//      "sudo systemctl restart kubelet"
+//    ] : [
+//      "if_secondary_name=$(sudo dmesg | grep eth0 | tail -1 | awk -F' ' '{print $5}' | sed 's/://')",
+//      "sudo sed -i -e \"s/if_name_secondary_to_be_replaced/\"$if_secondary_name\"/g\" ${var.workers.net_plan_file}",
+//      "sudo netplan apply",
+//      "sleep 10",
+//      "sudo cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.old",
+//      "ip=$(ip -f inet addr show $if_secondary_name | awk '/inet / {print $2}' | awk -F/ '{print $1}')",
+//      "sudo sed '$${s/$/ --node-ip '$ip'/}' /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.old | sudo tee /etc/systemd/system/kubelet.service.d/10-kubeadm.conf",
+//      "sudo systemctl daemon-reload",
+//      "sudo systemctl restart kubelet"
+//    ]
+//  }
+//}
+
 resource "null_resource" "copy_join_command_to_workers" {
   count            = 2
-  depends_on = [null_resource.copy_join_command_to_tf, vsphere_virtual_machine.workers]
+  depends_on = [null_resource.copy_join_command_to_tf, null_resource.k8s_bootstrap_workers]
   provisioner "local-exec" {
     command = var.vcenter_network_mgmt_dhcp == true ? "scp -i ~/.ssh/${var.ssh_key.private_key_basename}-${random_string.id.result}.pem -o StrictHostKeyChecking=no join-command ubuntu@${vsphere_virtual_machine.workers[count.index].default_ip_address}:/home/ubuntu/join-command" : "scp -i ~/.ssh/${var.ssh_key.private_key_basename}-${random_string.id.result}.pem -o StrictHostKeyChecking=no join-command ubuntu@${split(",", replace(var.vcenter_network_mgmt_ip4_addresses, " ", ""))[4 + count.index]}:/home/ubuntu/join-command"
   }

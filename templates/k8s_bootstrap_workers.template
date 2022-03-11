@@ -25,6 +25,52 @@ run_cmd 'sudo rm -f /tmp/signing.asc; wget https://baltocdn.com/helm/signing.asc
 run_cmd 'sudo apt-key add /tmp/signing.asc'
 run_cmd 'sudo rm -f /tmp/gpg; wget https://download.docker.com/linux/ubuntu/gpg -O /tmp/gpg; test $(ls -l /tmp/gpg | awk '"'"'{print $5}'"'"') -gt 0'
 run_cmd 'sudo apt-key add /tmp/gpg'
+# run_cmd 'sudo add-apt-repository "deb https://apt.kubernetes.io/ kubernetes-xenial main"; grep -r --include "*.list" "^deb" /etc/apt/sources.list | grep kubernetes'
+# run_cmd 'sudo add-apt-repository "deb https://baltocdn.com/helm/stable/debian/ all main"; grep -r --include "*.list" "^deb" /etc/apt/sources.list | grep helm'
+# run_cmd 'sudo add-apt-repository  "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"; grep -r --include "*.list" "^deb" /etc/apt/sources.list | grep docker'
+run_cmd '! sudo add-apt-repository "deb https://apt.kubernetes.io/ kubernetes-xenial main" | grep Err:'
+run_cmd '! sudo add-apt-repository "deb https://baltocdn.com/helm/stable/debian/ all main" | grep Err:'
+run_cmd '! sudo add-apt-repository  "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | grep Err:'
+run_cmd 'apt-get install -y docker-ce=${Docker_version}; ls /usr/bin/docker'
+run_cmd 'apt-get install -y kubeadm=${K8s_version} kubectl=${K8s_version} kubelet=${K8s_version}; ls /usr/bin/kubeadm /usr/bin/kubectl /usr/bin/kubelet'
+run_cmd 'apt-get install -y helm; ls /usr/bin/helm'
+sudo usermod -a -G docker ubuntu
+#
+# docker login if docker_registry_username and docker_registry_password are defined
+#
+docker_registry_username=${docker_registry_username}
+docker_registry_password=${docker_registry_password}
+if [[ -z "$docker_registry_username" || -z "$docker_registry_password" ]]; then
+echo "docker_registry_username and docker_registry_password are not defined"
+else
+ping -c 1 foo
+while [ $? -ne 0 ] ; do sleep 5 ; docker login --username $docker_registry_username --password $docker_registry_password ; done
+fi
+#
+# Download docker images
+#
+run_cmd "docker pull tacobayle/busybox-v1; docker image ls | grep tacobayle/busybox-v1"
+#
+# CNI download images
+#
+cni=${cni_name}
+if [ "$cni" == "calico" ] ; then
+run_cmd 'wget -O /tmp/calico.yml https://docs.projectcalico.org/manifests/calico.yaml; test $(ls -l /tmp/calico.yml | awk '"'"'{print $5}'"'"') -gt 0'
+for image in $(cat /tmp/calico.yml | grep 'image: ' | awk -F 'image: ' '{print $2}'); do image_to_search=$(echo $image | sed -e "s/docker.io\///g" | awk -F':' '{print $1}') ; run_cmd "docker pull $image; docker image ls | grep $image_to_search" ; done
+fi
+if [ "$cni" == "flannel" ] ; then
+run_cmd 'wget -O /tmp/flannel.yml https://github.com/coreos/flannel/raw/master/Documentation/kube-flannel.yml; test $(ls -l /tmp/flannel.yml | awk '"'"'{print $5}'"'"') -gt 0'
+for image in $(cat /tmp/flannel.yml | grep -vE '^\s*(#)' | grep 'image: ' | awk -F 'image: ' '{print $2}'); do image_to_search=$(echo $image | awk -F':' '{print $1}') ; run_cmd "docker pull $image; docker image ls | grep $image_to_search" ; done
+fi
+
+
+
+run_cmd 'sudo rm -f /tmp/apt-key.gpg; wget https://packages.cloud.google.com/apt/doc/apt-key.gpg -O /tmp/apt-key.gpg; test $(ls -l /tmp/apt-key.gpg | awk '"'"'{print $5}'"'"') -gt 0'
+run_cmd 'sudo apt-key add /tmp/apt-key.gpg'
+run_cmd 'sudo rm -f /tmp/signing.asc; wget https://baltocdn.com/helm/signing.asc -O /tmp/signing.asc; test $(ls -l /tmp/signing.asc | awk '"'"'{print $5}'"'"') -gt 0'
+run_cmd 'sudo apt-key add /tmp/signing.asc'
+run_cmd 'sudo rm -f /tmp/gpg; wget https://download.docker.com/linux/ubuntu/gpg -O /tmp/gpg; test $(ls -l /tmp/gpg | awk '"'"'{print $5}'"'"') -gt 0'
+run_cmd 'sudo apt-key add /tmp/gpg'
 run_cmd '! sudo add-apt-repository "deb https://apt.kubernetes.io/ kubernetes-xenial main" | grep Err:'
 run_cmd '! sudo add-apt-repository "deb https://baltocdn.com/helm/stable/debian/ all main" | grep Err:'
 run_cmd '! sudo add-apt-repository  "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | grep Err:'
