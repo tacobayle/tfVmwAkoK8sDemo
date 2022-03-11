@@ -37,7 +37,7 @@ if [[ ${dhcp} == true ]] ; then
   sudo cp /tmp/50-cloud-init.yaml ${net_plan_file}
 fi
 if [[ ${dhcp} == false ]] ; then
-  sudo sed -i -e \"s/if_name_secondary_to_be_replaced/\"$if_secondary_name\"/g\" ${net_plan_file}
+  sudo sed -i -e "s/if_name_secondary_to_be_replaced/"$if_secondary_name"/g" ${net_plan_file}
 fi
 sudo netplan apply
 sleep 10
