@@ -66,12 +66,8 @@ resource "null_resource" "ako_prerequisites" {
     private_key = tls_private_key.ssh.private_key_pem
   }
 
-  provisioner "local-exec" {
-    command = "cat > values-cluster-${count.index} <<EOL\n${data.template_file.values[count.index].rendered}\nEOL"
-  }
-
   provisioner "file" {
-    source = "values-cluster-${count.index}"
+    content = data.template_file.values[count.index].rendered
     destination = "values.yml"
   }
 
@@ -90,39 +86,23 @@ resource "null_resource" "ako_prerequisites" {
     destination = "service_loadBalancer.yml"
   }
 
-  provisioner "local-exec" {
-    command = "cat > ingress.yml-${count.index} <<EOL\n${data.template_file.ingress[count.index].rendered}\nEOL"
-  }
-
   provisioner "file" {
-    source = "ingress.yml-${count.index}"
+    content = data.template_file.ingress[count.index].rendered
     destination = "ingress.yml"
   }
 
-  provisioner "local-exec" {
-    command = "cat > secure_ingress.yml-${count.index} <<EOL\n${data.template_file.secure_ingress[count.index].rendered}\nEOL"
-  }
-
   provisioner "file" {
-    source = "secure_ingress.yml-${count.index}"
+    content = data.template_file.secure_ingress[count.index].rendered
     destination = "secure_ingress.yml"
   }
 
-  provisioner "local-exec" {
-    command = "cat > avi_crd_hostrule_waf.yml-${count.index} <<EOL\n${data.template_file.avi_crd_hostrule_waf[count.index].rendered}\nEOL"
-  }
-
-  provisioner "local-exec" {
-    command = "cat > avi_crd_hostrule_tls_cert.yml${count.index} <<EOL\n${data.template_file.avi_crd_hostrule_tls_cert[count.index].rendered}\nEOL"
-  }
-
   provisioner "file" {
-    source = "avi_crd_hostrule_waf.yml-${count.index}"
+    content = data.template_file.avi_crd_hostrule_waf[count.index].rendered
     destination = "avi_crd_hostrule_waf.yml"
   }
 
   provisioner "file" {
-    source = "avi_crd_hostrule_tls_cert.yml${count.index}"
+    content = data.template_file.avi_crd_hostrule_tls_cert[count.index].rendered
     destination = "avi_crd_hostrule_tls_cert.yml"
   }
 
