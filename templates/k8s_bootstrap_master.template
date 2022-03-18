@@ -73,11 +73,11 @@ cni=${cni_name}
 ako_service_type=${ako_service_type}
 if [ "$cni" == "antrea" ] ; then
     if [ "$ako_service_type" == "NodePortLocal" ] ; then
-      run_cmd 'wget -O /tmp/antrea.yml.without_nodeportlocal https://github.com/vmware-tanzu/antrea/releases/download/v1.2.3/antrea.yml; ls /tmp/antrea.yml.without_nodeportlocal'
+      run_cmd 'wget -O /tmp/antrea.yml.without_nodeportlocal https://github.com/vmware-tanzu/antrea/releases/download/v1.2.3/antrea.yml; test $(ls -l /tmp/antrea.yml.without_nodeportlocal | awk '"'"'{print $5}'"'"') -gt 0'
       cp /tmp/antrea.yml.without_nodeportlocal /tmp/antrea.yml
       sed -i -e "s/    #  NodePortLocal: false/      NodePortLocal: true/g" /tmp/antrea.yml
     else
-      run_cmd 'wget -O /tmp/antrea.yml https://github.com/vmware-tanzu/antrea/releases/download/v1.2.3/antrea.yml; test $$(ls -l /tmp/antrea.yml | awk '"'"'{print $5}'"'"') -gt 0'
+      run_cmd 'wget -O /tmp/antrea.yml https://github.com/vmware-tanzu/antrea/releases/download/v1.2.3/antrea.yml; test $(ls -l /tmp/antrea.yml | awk '"'"'{print $5}'"'"') -gt 0'
     fi
     run_cmd 'kubectl apply -f /tmp/antrea.yml'
 else
