@@ -121,7 +121,7 @@ variable "K8s_version" {
 }
 
 variable "K8s_cni_name" {
-  default = "antrea"
+  default = "calico"
 }
 
 variable "K8s_pod_cidr" {
