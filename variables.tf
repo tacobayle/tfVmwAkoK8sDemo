@@ -49,7 +49,7 @@ variable "vcenter_network_mgmt_network_cidr" {
 }
 
 variable "vcenter_network_mgmt_dhcp" {
-  default = true
+  default = false
 }
 
 variable "vcenter_network_mgmt_ip4_addresses" {
