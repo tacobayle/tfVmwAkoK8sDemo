@@ -121,7 +121,7 @@ variable "K8s_version" {
 }
 
 variable "K8s_cni_name" {
-  default = "flannel"
+  default = "antrea"
 }
 
 variable "K8s_pod_cidr" {
@@ -147,7 +147,7 @@ variable "ako_version" {
 }
 
 variable "ako_service_type" {
-  default = "ClusterIP"
+  default = "NodePortLocal"
 }
 
 #
