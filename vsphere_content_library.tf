@@ -36,4 +36,3 @@ resource "null_resource" "remove_download_ubuntu" {
     command = "rm -f /tmp/$(basename ${var.content_library.source_url_ubuntu_focal}); rm -f /tmp/controller_tf_ako_demo.ova"
   }
 }
-

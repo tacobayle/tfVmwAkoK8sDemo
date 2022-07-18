@@ -76,7 +76,7 @@ variable "ntp_servers_ips" {
 }
 
 variable "vcenter_network_vip_name" {
-  default = "vxw-dvs-34-virtualwire-120-sid-6120119-wdc-06-vc12-avi-dev116"
+    default = "vxw-dvs-34-virtualwire-120-sid-6120119-wdc-06-vc12-avi-dev116"
 }
 
 variable "vcenter_network_vip_cidr" {
@@ -143,7 +143,7 @@ variable "ako_deploy" {
 }
 
 variable "ako_version" {
-  default = "1.6.1"
+  default = "1.7.1"
 }
 
 variable "ako_service_type" {
